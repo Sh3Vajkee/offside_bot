@@ -1,0 +1,33 @@
+from textwrap import dedent
+
+from aiogram import Bot, F, Router
+from aiogram.fsm.context import FSMContext as FSM
+from aiogram.types import CallbackQuery as CQ
+from aiogram.types import Message as Mes
+
+from db.queries.global_queries import get_top_penalty, get_top_rating
+from keyboards.ratings_kbs import back_to_ratings_btn, ratings_kb
+from utils.format_texts import format_top_penalty_text, format_top_rating_text
+
+flags = {"throttling_key": "default"}
+router = Router()
+
+
+@router.callback_query(F.data == "rating", flags=flags)
+async def ratings_cmd(c: CQ):
+    txt = "В этом разделе ты можешь посмотреть 🏆 Топ 10 игроков по категориям!"
+    await c.message.edit_text(txt, reply_markup=ratings_kb)
+
+
+@router.callback_query(F.data == "top_rating", flags=flags)
+async def top_rating_cmd(c: CQ, ssn):
+    res = await get_top_rating(ssn, c.from_user.id)
+    txt = await format_top_rating_text(*res)
+    await c.message.edit_text(txt, reply_markup=back_to_ratings_btn)
+
+
+@router.callback_query(F.data == "top_penalty", flags=flags)
+async def top_penalty_cmd(c: CQ, ssn):
+    res = await get_top_penalty(ssn, c.from_user.id)
+    txt = await format_top_penalty_text(*res)
+    await c.message.edit_text(txt, reply_markup=back_to_ratings_btn)

@@ -1,0 +1,15 @@
+[Unit]
+Description=Offside Bot
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+WorkingDirectory=/root/offside_bot
+ExecStart=/bin/python3 /root/offside_bot/__main__.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
