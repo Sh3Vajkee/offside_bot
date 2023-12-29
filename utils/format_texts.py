@@ -23,11 +23,10 @@ async def format_view_my_cards_text(card: CardItem):
     return dedent(txt)
 
 
-async def format_list_my_cards_text(cards):
+async def format_list_my_cards_text(cards: dict):
     txt = "Список всех ваших карт:\n"
-    card: UserCard
-    for card in cards:
-        txt += f"{card.card.nickname} | Рейтинг: {card.points} | {card.quant} шт."
+    for k, v in cards.items():
+        txt += f"{v['nickname']} | Рейтинг: {v['rating']} | {v['quant']} шт."
 
     return txt
 

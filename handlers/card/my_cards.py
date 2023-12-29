@@ -7,12 +7,14 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
-from db.queries.collection_queries import get_user_rarity_cards
+from db.queries.collection_queries import (get_user_list_cards,
+                                           get_user_rarity_cards)
 from keyboards.cards_kbs import (filter_my_cards_kb, my_card_list_kb,
                                  my_card_rarities_kb, my_cards_kb)
 from keyboards.cb_data import PageCB
 from utils.format_texts import (format_list_my_cards_text,
                                 format_view_my_cards_text)
+from utils.misc import calc_cards_quant
 from utils.states import UserStates
 
 flags = {"throttling_key": "default"}
@@ -64,7 +66,7 @@ async def view_rarity_cards_cmd(c: CQ, ssn, state: FSM):
     StateFilter(UserStates.mycards),
     PageCB.filter(), flags={"throttling_key": "pages"}
 )
-async def view_rarity_cards_cmd(c: CQ, state: FSM, callback_data: PageCB):
+async def paginate_rarity_cards_cmd(c: CQ, state: FSM, callback_data: PageCB):
     page = int(callback_data.num)
     last = int(callback_data.last)
 
@@ -75,7 +77,7 @@ async def view_rarity_cards_cmd(c: CQ, state: FSM, callback_data: PageCB):
     card = cards[page-1]
     txt = await format_view_my_cards_text(card.card)
 
-    media = types.InputMediaAnimation(caption=txt, media=card.card.image)
+    media = types.InputMediaPhoto(caption=txt, media=card.card.image)
 
     try:
         await c.message.edit_media(
@@ -125,6 +127,7 @@ async def get_card_cmd(c: CQ):
 
 @router.callback_query(F.data == "list_my_cards", flags={flags})
 async def list_of_my_cards_cmd(c: CQ, ssn):
-    cards = await get_user_rarity_cards(ssn, c.from_user.id, "all", "up")
-    txt = await format_list_my_cards_text(cards)
+    cards = await get_user_list_cards(ssn, c.from_user.id)
+    data = await calc_cards_quant(cards)
+    txt = await format_list_my_cards_text(data)
     await c.message.edit_text(txt, reply_markup=my_card_list_kb)

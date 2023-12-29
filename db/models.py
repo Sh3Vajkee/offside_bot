@@ -48,7 +48,22 @@ class UserCard(Base):
     card_id = Column(Integer, ForeignKey("carditem.id", ondelete="CASCADE"))
     card_rarity = Column(String(20))
     points = Column(Integer)
-    quant = Column(Integer, default=1)
+    duplicate = Column(Integer, default=0)
 
     card = relationship("CardItem")
     player = relationship("Player", back_populates="usercards")
+
+
+class Trade(Base):
+    __tablename__ = "trade"
+
+    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    status = Column(String(50), default="target_wait")
+
+    owner = Column(BigInteger)
+    owner_username = Column(String(255))
+    owner_card_id = Column(Integer)
+
+    target = Column(BigInteger)
+    target_username = Column(String(255))
+    target_card_id = Column(Integer)

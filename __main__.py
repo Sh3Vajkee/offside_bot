@@ -14,6 +14,7 @@ from db.base import Base
 from handlers import admin, info, start
 from handlers.card import buy_cards, get_card, my_cards
 from handlers.games import lucky_shot
+from handlers.trade import owner_trade
 from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import (ThrottlingCallbackQueryMiddleware,
                                     ThrottlingMessageMiddleware)
@@ -66,6 +67,7 @@ async def main():
     dp.include_router(get_card.router)
     dp.include_router(buy_cards.router)
     dp.include_router(my_cards.router)
+    dp.include_router(owner_trade.router)
 
     dp.include_router(admin.router)
 

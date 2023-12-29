@@ -86,6 +86,15 @@ sub_kb = InlineKeyboardMarkup(
     ]
 )
 
+to_main_btn = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="🧑💻 В личный кабине", callback_data="startplay")
+        ]
+    ]
+)
+
 
 cancel_btn = InlineKeyboardMarkup(
     inline_keyboard=[

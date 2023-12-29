@@ -103,6 +103,18 @@ filter_my_cards_kb = InlineKeyboardMarkup(
 
 
 def my_cards_kb(page, last, sorting):
+    btns = []
+
+    if sorting == "up":
+        txt = "Рейтинг⬆️"
+    elif sorting == "down":
+        txt = "Рейтинг⬇️"
+    else:
+        txt = "Рейтинг❌"
+
+    btns.append([
+        InlineKeyboardButton(text=txt, callback_data=f"sortmycards_{sorting}")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
@@ -119,17 +131,8 @@ def my_cards_kb(page, last, sorting):
         page_btns.append(InlineKeyboardButton(
             text=">>", callback_data=PageCB(num=last, last=last).pack()))
 
-    btns = [page_btns]
+    btns.append(page_btns)
 
-    if sorting == "up":
-        txt = "Рейтинг⬆️"
-    elif sorting == "down":
-        txt = "Рейтинг⬇️"
-    else:
-        txt = "Рейтинг❌"
-
-    btns.append([
-        InlineKeyboardButton(text=txt, callback_data=f"sortmycards_{sorting}")])
     btns.append([
         InlineKeyboardButton(text="⏪ Назад", callback_data="back_to_mycards")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=btns)

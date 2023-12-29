@@ -1,5 +1,7 @@
 import random
 
+from db.models import UserCard
+
 
 async def card_rarity_randomize():
     rarities = [
@@ -22,3 +24,20 @@ async def format_delay_text(delay):
         txt = f"{minutes}мин"
 
     return txt
+
+
+async def calc_cards_quant(cards):
+    data = {}
+    card: UserCard
+    for card in cards:
+        if str(card.card_id) in data:
+            quant = data[str(card.card_id)]['quant']
+            quant += 1
+            data[str(card.card_id)]['quant'] = quant
+        else:
+            data[str(card.card_id)] = {
+                'nickname': card.card.nickname,
+                'rating': card.points, 'quant': 1
+            }
+
+    return data
