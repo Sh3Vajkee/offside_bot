@@ -10,12 +10,13 @@ from aiogram.types import Message as Mes
 from db.models import CardItem, Trade
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.trade_queries import (check_target_trade, create_new_trade,
-                                      update_trade_status)
+                                      decline_trade, update_trade_status)
 from keyboards.cb_data import PageCB
 from keyboards.main_kbs import to_main_btn
-from keyboards.trade_kbs import (card_trade_kb, offer_to_owner_kb,
-                                 offer_to_target_kb, target_card_trade_kb,
-                                 target_cards_kb, trade_kb)
+from keyboards.trade_kbs import (after_trade_kb, card_trade_kb,
+                                 offer_to_owner_kb, offer_to_target_kb,
+                                 target_card_trade_kb, target_cards_kb,
+                                 trade_kb)
 from utils.format_texts import format_view_my_cards_text
 from utils.states import UserStates
 
@@ -126,3 +127,23 @@ async def answer_trade_cmd(c: CQ, state: FSM, ssn, bot: Bot):
         await bot.send_photo(
             trade.owner, card.image, caption=dedent(txt),
             reply_markup=offer_to_owner_kb(trade.id))
+
+
+@router.callback_query(F.data.startswith("targetdeclinetrade_"), flags=flags)
+async def decline_target_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
+    trade_id = int(c.data.split("_")[-1])
+    res: Trade = await decline_trade(ssn, c.from_user.id, trade_id)
+
+    await c.message.delete()
+    if res == "not_active":
+        await state.clear()
+        txt = "Это предложение обмена больше недоступно"
+        await c.message.answer(txt, reply_markup=to_main_btn)
+    else:
+        logging.info(f"User {c.from_user.id} canceled trade {trade_id}")
+
+        await c.message.delete()
+        await c.message.answer("❌ Вы отменили обмен!", reply_markup=after_trade_kb)
+
+        await bot.send_message(
+            res.owner, "❌ Увы, сделка сорвалась.", reply_markup=after_trade_kb)

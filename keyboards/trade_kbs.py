@@ -173,3 +173,17 @@ def target_card_trade_kb(page, last, sorting, card_id, trade_id):
             text="⏪ Назад", callback_data=f"answertrade_{trade_id}")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=btns)
     return keyboard
+
+
+after_trade_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="🎭 Обмен картами", callback_data=f"trade")
+        ],
+        [
+            InlineKeyboardButton(
+                text="🧑💻 В личный кабинет", callback_data=f"backtostart")
+        ]
+    ]
+)

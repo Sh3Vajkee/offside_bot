@@ -88,8 +88,23 @@ async def update_trade_status(ssn: AsyncSession, user_id, card_id, trade_id):
     trade: Trade = trade_q.fetchone()[0]
     if trade.status == "target_wait":
         await ssn.execute(update(Trade).filter(
-            Trade.id == trade.id).values(target_card_id=card_id))
+            Trade.id == trade.id).values(
+                target_card_id=card_id, status="owner_wait"))
         await ssn.commit()
         return trade, cards[0].card
 
     return "trade_not_available"
+
+
+async def decline_trade(ssn: AsyncSession, trade_id):
+    trade_q = await ssn.execute(
+        select(Trade).filter(Trade.id == trade_id))
+    trade: Trade = trade_q.fetchone()[0]
+    if trade.status not in ("target_wait", "owner_wait"):
+        return "not_active"
+
+    await ssn.execute(update(Trade).filter(
+        Trade.id == trade_id).values(status="declined"))
+    await ssn.commit()
+
+    return trade
