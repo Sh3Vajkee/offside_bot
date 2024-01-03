@@ -90,7 +90,16 @@ to_main_btn = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text="🧑💻 В личный кабине", callback_data="startplay")
+                text="🧑💻 В личный кабинет", callback_data="startplay")
+        ]
+    ]
+)
+
+back_to_main_btn = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="⏪ Назад", callback_data="startplay")
         ]
     ]
 )

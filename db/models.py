@@ -25,6 +25,8 @@ class Player(Base):
     joined_at_ts = Column(BigInteger, defaul=0)
     joined_at_txt = Column(String(50))
 
+    role = Column(String(25), default="player")
+
     usercards = relationship("UserCard", back_populates="player")
 
 
@@ -67,3 +69,32 @@ class Trade(Base):
     target = Column(BigInteger)
     target_username = Column(String(255))
     target_card_id = Column(Integer)
+
+
+class Penalty(Base):
+    __tablename__ = "penalty"
+
+    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    status = Column(String(50), default="active")
+
+    owner = Column(BigInteger)
+    owner_msg_id = Column(BigInteger)
+    owner_username = Column(String(255))
+    owner_score = Column(Integer, default=0)
+    owner_txt = Column(String(15), default="00000")
+
+    target = Column(BigInteger)
+    target_msg_id = Column(BigInteger)
+    target_username = Column(String(255))
+    target_score = Column(Integer, default=0)
+    target_txt = Column(String(15), default="00000")
+
+    round = Column(Integer, default=1)
+
+    turn_user_id = Column(BigInteger, default=0)
+    kicker = Column(BigInteger, default=0)
+    kicker_pick = Column(Integer)
+    keeper = Column(BigInteger, default=0)
+    last_action = Column(BigInteger, default=0)
+
+    winner = Column(BigInteger, default=0)

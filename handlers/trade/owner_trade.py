@@ -9,8 +9,8 @@ from aiogram.types import Message as Mes
 
 from db.models import CardItem, Trade
 from db.queries.collection_queries import get_user_rarity_cards
-from db.queries.trade_queries import (check_target_trade, create_new_trade,
-                                      decline_trade)
+from db.queries.trade_queries import (check_target_trade, close_trade,
+                                      create_new_trade, decline_trade)
 from keyboards.cb_data import PageCB
 from keyboards.main_kbs import to_main_btn
 from keyboards.trade_kbs import (after_trade_kb, card_trade_kb,

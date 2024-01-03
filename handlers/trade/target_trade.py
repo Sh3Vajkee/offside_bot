@@ -10,7 +10,8 @@ from aiogram.types import Message as Mes
 from db.models import CardItem, Trade
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.trade_queries import (check_target_trade, create_new_trade,
-                                      decline_trade, update_trade_status)
+                                      decline_last_trade, decline_trade,
+                                      update_trade_status)
 from keyboards.cb_data import PageCB
 from keyboards.main_kbs import to_main_btn
 from keyboards.trade_kbs import (after_trade_kb, card_trade_kb,
@@ -147,3 +148,20 @@ async def decline_target_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
 
         await bot.send_message(
             res.owner, "❌ Увы, сделка сорвалась.", reply_markup=after_trade_kb)
+
+
+@router.callback_query(F.data == "cancel_trade", flags=flags)
+async def cancel_last_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
+    res: Trade = await decline_last_trade(ssn, c.from_user.id)
+
+    await state.clear()
+    await c.message.delete()
+    await c.message.answer("❌ Вы отменили обмен!", reply_markup=after_trade_kb)
+    if res != "not_found":
+        logging.info(f"User {c.from_user.id} canceled trade {res.id}")
+        if res.owner == c.from_user.id:
+            user_id = res.target
+        else:
+            user_id = res.owner
+        await bot.send_message(
+            user_id, "❌ Увы, сделка сорвалась.", reply_markup=after_trade_kb)

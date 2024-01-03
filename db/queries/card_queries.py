@@ -21,7 +21,7 @@ async def get_free_card(ssn: AsyncSession, user_id):
     if date_ts < user.last_open:
         return user.last_open - date_ts
 
-    rarity = await card_rarity_randomize()
+    rarity = await card_rarity_randomize("card")
     cards_q = await ssn.execute(
         select(CardItem).filter(CardItem.rarity == rarity))
     cards = cards_q.scalars().all()
