@@ -21,13 +21,13 @@ flags = {"throttling_key": "default"}
 router = Router()
 
 
-@router.callback_query(F.data == "getcard", flags={flags})
+@router.callback_query(F.data == "mycards", flags=flags)
 async def get_card_cmd(c: CQ):
     txt = "🎭 Выберите формат отображения коллекции"
     await c.message.edit_text(txt, reply_markup=filter_my_cards_kb)
 
 
-@router.callback_query(F.data == "back_to_mycards", flags={flags})
+@router.callback_query(F.data == "back_to_mycards", flags=flags)
 async def get_card_cmd(c: CQ, state: FSM):
     txt = "🎭 Выберите формат отображения коллекции"
     await c.message.delete()
@@ -119,13 +119,13 @@ async def view_sorted_cards_cmd(c: CQ, ssn, state: FSM):
         await state.update_data(cards=cards, sorting=sorting)
 
 
-@router.callback_query(F.data == "back_to_mycards", flags={flags})
+@router.callback_query(F.data == "back_to_mycards", flags=flags)
 async def get_card_cmd(c: CQ):
     txt = "Выберите редкость карт"
     await c.message.edit_text(txt, reply_markup=my_card_rarities_kb)
 
 
-@router.callback_query(F.data == "list_my_cards", flags={flags})
+@router.callback_query(F.data == "list_my_cards", flags=flags)
 async def list_of_my_cards_cmd(c: CQ, ssn):
     cards = await get_user_list_cards(ssn, c.from_user.id)
     data = await calc_cards_quant(cards)

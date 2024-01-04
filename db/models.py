@@ -22,7 +22,7 @@ class Player(Base):
     lucky_quants = Column(Integer, default=0)
     last_lucky = Column(BigInteger, default=0)
 
-    joined_at_ts = Column(BigInteger, defaul=0)
+    joined_at_ts = Column(BigInteger, default=0)
     joined_at_txt = Column(String(50))
 
     role = Column(String(25), default="player")
@@ -81,19 +81,19 @@ class Penalty(Base):
     owner_msg_id = Column(BigInteger)
     owner_username = Column(String(255))
     owner_score = Column(Integer, default=0)
-    owner_txt = Column(String(15), default="00000")
+    owner_txt = Column(String(15), default="")
 
     target = Column(BigInteger)
     target_msg_id = Column(BigInteger)
     target_username = Column(String(255))
     target_score = Column(Integer, default=0)
-    target_txt = Column(String(15), default="00000")
+    target_txt = Column(String(15), default="")
 
     round = Column(Integer, default=1)
 
     turn_user_id = Column(BigInteger, default=0)
     kicker = Column(BigInteger, default=0)
-    kicker_pick = Column(Integer)
+    kicker_pick = Column(Integer, default=0)
     keeper = Column(BigInteger, default=0)
     last_action = Column(BigInteger, default=0)
 

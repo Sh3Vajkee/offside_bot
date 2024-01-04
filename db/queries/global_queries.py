@@ -27,7 +27,6 @@ async def check_and_add_user(ssn: AsyncSession, user_id, username):
             await ssn.execute(update(Player).filter(
                 Player.id == res.id).values(username=username))
             await ssn.commit()
-    return res
 
 
 async def get_user_info(ssn: AsyncSession, user_id):

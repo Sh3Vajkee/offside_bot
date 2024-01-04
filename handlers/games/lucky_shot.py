@@ -20,7 +20,7 @@ router = Router()
 router.callback_query.middleware(ActionMiddleware())
 
 
-@router.callback_query(F.data == "startplay", flags=flags)
+@router.callback_query(F.data == "games", flags=flags)
 async def games_cmd(c: CQ, action_queue):
     try:
         del action_queue[str(c.from_user.id)]
@@ -43,8 +43,8 @@ async def lucky_shot_cmd(c: CQ, action_queue):
 
 
 @router.callback_query(F.data == "hitls", flags=flags)
-async def hit_lucky_shot_cmd(c: CQ, ssn, action_queue):
-    res = await lucky_shot(ssn, c.from_user.id)
+async def hit_lucky_shot_cmd(c: CQ, ssn, action_queue, bot):
+    res = await lucky_shot(ssn, c.from_user.id, bot)
     if isinstance(res, int):
         time = await format_delay_text(res)
         txt = f"""
@@ -55,20 +55,20 @@ async def hit_lucky_shot_cmd(c: CQ, ssn, action_queue):
     elif res == "no_cards":
         await c.answer("⚠️ Возникла ошибка! Попробуй позже")
     else:
+        await c.message.delete()
         await asyncio.sleep(4.5)
         card: CardItem = res[0]
         user: Player = res[1]
         if card == "lose":
             if user.lucky_quants > 0:
                 txt = f"☘️ Ты испытал удачу и сейчас тебе не повезло😔\n Количество оставшихся попыток - {user.lucky_quants}"
-                await c.message.edit_text(txt, reply_markup=lucky_shot_btn)
+                await c.message.answer(txt, reply_markup=lucky_shot_btn)
             else:
                 txt = f"☘️ Ты испытал удачу и сейчас тебе не повезло😔\nПопробуй еще раз через 4 часа или получи 3 удара за 100 рублей!"
-                await c.message.edit_text(txt, reply_markup=no_free_ls_btn)
+                await c.message.answer(txt, reply_markup=no_free_ls_btn)
         else:
             txt = "☘️ Ты испытал удачу и выиграл одну случайную карточку!\n\n"
             card_txt = await format_new_free_card_text(card)
-            await c.message.delete()
             await c.message.answer_photo(
                 card.image, txt + card_txt, reply_markup=accept_new_card_btn)
 

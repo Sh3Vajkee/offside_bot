@@ -9,5 +9,7 @@ class UserStates(StatesGroup):
 
 
 class AdminStates(StatesGroup):
-    reason = State()
-    img = State()
+    add_card = State()
+    card_image = State()
+
+    image_id = State()

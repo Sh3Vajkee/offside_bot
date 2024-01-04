@@ -4,14 +4,31 @@ import logging
 
 from aiogram import Bot
 
-from db.queries.penalty_queries import check_penalty
+from db.models import Penalty
+from db.queries.penalty_queries import check_penalty, get_active_penalties
 from keyboards.games_kbs import after_penalty_kb
 from keyboards.main_kbs import back_to_main_btn, to_main_btn
+
+
+async def re_check_active_penalties(db, bot):
+    date = dt.datetime.now()
+    date_ts = int(date.timestamp())
+    penalties = await get_active_penalties(db)
+    if len(penalties) > 0:
+        penalty: Penalty
+        for num, penalty in enumerate(penalties):
+            delay = penalty.last_action - date_ts
+            if delay <= 0:
+                delay = num + 1
+            asyncio.create_task(check_penalty_timer(
+                db, penalty.id, penalty.last_action, delay, bot))
+            await asyncio.sleep(.001)
 
 
 async def check_penalty_timer(db, penalty_id, date_ts, delay, bot: Bot):
     await asyncio.sleep(delay)
     penalty = await check_penalty(db, penalty_id, date_ts)
+
     if penalty:
         if penalty.kicker == penalty.keeper == 0:
             try:
@@ -29,6 +46,16 @@ async def check_penalty_timer(db, penalty_id, date_ts, delay, bot: Bot):
                 logging.error(f"Send error | chat {penalty.owner}\n{error}")
 
         else:
+            try:
+                await bot.delete_message(penalty.owner, penalty.owner_msg_id)
+            except Exception as error:
+                logging.error(f"Delete error | chat {penalty.owner}\n{error}")
+            await asyncio.sleep(.03)
+            try:
+                await bot.delete_message(penalty.target, penalty.target_msg_id)
+            except Exception as error:
+                logging.error(f"Delete error | chat {penalty.target}\n{error}")
+
             if penalty.turn_user_id == penalty.owner:
                 owner_txt = "Тебя слишком долго не было в игре, поэтому тебе засчитано поражение"
                 target_txt = f"Игрок {penalty.owner_username} слишком долго не отвечал, вы победили!"

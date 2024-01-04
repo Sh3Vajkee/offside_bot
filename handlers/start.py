@@ -68,9 +68,11 @@ async def start_play_cmd(c: CQ, ssn, bot: Bot):
 
     sub = await bot.get_chat_member(channel_username, c.from_user.id)
 
+    await c.message.delete()
+
     if sub.status == "left":
         txt = "Чтобы начать играть, необходимо 1️⃣ Подписаться на канал @offsidecard"
-        await c.message.edit_text(txt, reply_markup=sub_kb)
+        await c.message.answer(txt, reply_markup=sub_kb)
 
     else:
         user = await get_user_info(ssn, c.from_user.id)
@@ -82,7 +84,7 @@ async def start_play_cmd(c: CQ, ssn, bot: Bot):
 
         ⚽️ Рейтинг в игре Пенальти: {user.penalty_rating}
         """
-        await c.message.edit_text(dedent(txt), reply_markup=main_kb)
+        await c.message.answer(dedent(txt), reply_markup=main_kb)
 
 
 @router.callback_query(F.data == "cancel_cb")

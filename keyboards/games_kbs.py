@@ -75,3 +75,33 @@ after_penalty_kb = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+draw_penalty_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="⚽ Переигровка", callback_data="penalty"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="🏳 Ничья", callback_data="games")
+        ]
+    ]
+)
+
+
+def penalty_action_kb(pen_id, kind):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="1️⃣", callback_data=f"pnactn_{kind}_{pen_id}_1"),
+                InlineKeyboardButton(
+                    text="2️⃣", callback_data=f"pnactn_{kind}_{pen_id}_2"),
+                InlineKeyboardButton(
+                    text="3️⃣", callback_data=f"pnactn_{kind}_{pen_id}_3")
+            ]
+        ]
+    )
+    return keyboard

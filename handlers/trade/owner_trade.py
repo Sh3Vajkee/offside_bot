@@ -26,7 +26,8 @@ router = Router()
 @router.callback_query(F.data == "trade", flags=flags)
 async def trade_cmd(c: CQ, state: FSM):
     await state.clear()
-    await c.message.edit_text(
+    await c.message.delete()
+    await c.message.answer(
         "🧳 Выберите формат отображения коллекции",
         reply_markup=trade_kb)
 
@@ -87,7 +88,7 @@ async def paginate_owner_trade_cards_cmd(c: CQ, state: FSM, callback_data: PageC
         await c.answer()
 
 
-@router.callback_query(F.data.startswith("sortmycards_"), flags=flags)
+@router.callback_query(F.data.startswith("chstrdcard_"), flags=flags)
 async def choose_trade_card_cmd(c: CQ, ssn, state: FSM, bot: Bot):
     card_id = int(c.data.split("_")[-1])
     res = await check_target_trade(ssn, c.from_user.id, card_id)
@@ -98,7 +99,7 @@ async def choose_trade_card_cmd(c: CQ, ssn, state: FSM, bot: Bot):
         txt = "Напишите юзернейм пользователя (@username), с которым хотите обменяться"
         await c.message.answer(txt)
         await state.clear()
-        await state.set_state(UserStates.trade_target)
+        await state.set_state(UserStates.target_trade)
         await state.update_data(card_id=card_id)
         await c.answer()
     elif res == "already_trading":
@@ -127,7 +128,7 @@ async def choose_trade_card_cmd(c: CQ, ssn, state: FSM, bot: Bot):
             reply_markup=offer_to_owner_kb(trade.id))
 
 
-@router.message(StateFilter(UserStates.trade_target), F.text, flags=flags)
+@router.message(StateFilter(UserStates.target_trade), F.text, flags=flags)
 async def save_target_trade_username_cmd(m: Mes, state: FSM, ssn, bot: Bot):
     data = await state.get_data()
     await state.clear()
@@ -149,6 +150,7 @@ async def save_target_trade_username_cmd(m: Mes, state: FSM, ssn, bot: Bot):
     elif res == "not_found":
         txt = "Этому пользователю нельзя предложить обмен, попробуйте снова"
         await m.answer(txt, reply_markup=to_main_btn)
+
     else:
         trade_id = res[0]
         target_id = res[1]

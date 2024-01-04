@@ -37,8 +37,7 @@ async def get_user_rarity_cards(ssn: AsyncSession, user_id, rarity, sorting):
 
 async def get_user_list_cards(ssn: AsyncSession, user_id):
     cards_q = await ssn.execute(select(UserCard).filter(
-        UserCard.user_id == user_id).filter(
-        UserCard.duplicate == 0).order_by(
+        UserCard.user_id == user_id).order_by(
         UserCard.points).options(
         selectinload(UserCard.card)))
     cards = cards_q.scalars().all()

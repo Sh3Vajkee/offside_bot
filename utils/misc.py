@@ -4,7 +4,8 @@ import random
 from aiogram import Bot
 
 from db.models import UserCard
-from keyboards.games_kbs import penalty_offer_kb
+from keyboards.games_kbs import penalty_action_kb, penalty_offer_kb
+from utils.const import images
 
 
 async def card_rarity_randomize(kind):
@@ -66,6 +67,25 @@ async def send_penalty_offer(bot: Bot, user_id, username, pen_id):
     try:
         msg = await bot.send_message(
             user_id, txt, reply_markup=penalty_offer_kb(pen_id))
+        msg_id = msg.message_id
+    except Exception as error:
+        logging.error(f"Send error | chat {user_id}\n{error}")
+
+    return msg_id
+
+
+async def send_penalty_action(bot: Bot, user_id, pen_id, kind):
+    if kind == "kicker":
+        txt = f"Выбери угол, в который хочешь ударить"
+    else:
+        txt = f"Выбери угол, в который хочешь прыгнуть"
+
+    img = images.get("penalty")
+    msg_id = 0
+    try:
+        msg = await bot.send_photo(
+            user_id, img, caption=txt,
+            reply_markup=penalty_action_kb(pen_id, kind))
         msg_id = msg.message_id
     except Exception as error:
         logging.error(f"Send error | chat {user_id}\n{error}")

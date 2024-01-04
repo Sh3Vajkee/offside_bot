@@ -11,13 +11,15 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from config_reader import config
 from db.base import Base
-from handlers import admin, info, start
+from handlers import info, ratings, start
+from handlers.admin import add_card, admin_main
 from handlers.card import buy_cards, get_card, my_cards
-from handlers.games import lucky_shot
+from handlers.games import lucky_shot, penalty
 from handlers.trade import confirm_trade, owner_trade, target_trade
 from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import (ThrottlingCallbackQueryMiddleware,
                                     ThrottlingMessageMiddleware)
+from utils.scheduled import re_check_active_penalties
 
 
 async def set_bot_commands(bot: Bot):
@@ -63,8 +65,10 @@ async def main():
     # Регистрация роутеров с хэндлерами
     dp.include_router(start.router)
     dp.include_router(info.router)
+    dp.include_router(ratings.router)
 
     dp.include_router(lucky_shot.router)
+    dp.include_router(penalty.router)
 
     dp.include_router(get_card.router)
     dp.include_router(buy_cards.router)
@@ -74,7 +78,8 @@ async def main():
     dp.include_router(target_trade.router)
     dp.include_router(confirm_trade.router)
 
-    dp.include_router(admin.router)
+    dp.include_router(admin_main.router)
+    dp.include_router(add_card.router)
 
     # Регистрация мидлварей
     dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
@@ -89,6 +94,7 @@ async def main():
     logging.getLogger('apscheduler.executors.default').setLevel(
         logging.WARNING)
     try:
+        await re_check_active_penalties(sessionmaker, bot)
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(
             bot, db=sessionmaker, yoo_token=config.yoo_token.get_secret_value(),

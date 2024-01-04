@@ -35,7 +35,7 @@ async def answer_trade_cmd(c: CQ):
 
 
 @router.callback_query(
-    F.data.startswith("trdrar_"), flags={"throttling_key": "pages"}
+    F.data.startswith("answtrdrar_"), flags={"throttling_key": "pages"}
 )
 async def view_owner_trade_rarity_cards_cmd(c: CQ, ssn, state: FSM):
     c_data = c.data.split("_")
@@ -133,7 +133,7 @@ async def answer_trade_cmd(c: CQ, state: FSM, ssn, bot: Bot):
 @router.callback_query(F.data.startswith("targetdeclinetrade_"), flags=flags)
 async def decline_target_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
     trade_id = int(c.data.split("_")[-1])
-    res: Trade = await decline_trade(ssn, c.from_user.id, trade_id)
+    res: Trade = await decline_trade(ssn, trade_id)
 
     await c.message.delete()
     if res == "not_active":
@@ -143,7 +143,6 @@ async def decline_target_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
     else:
         logging.info(f"User {c.from_user.id} canceled trade {trade_id}")
 
-        await c.message.delete()
         await c.message.answer("❌ Вы отменили обмен!", reply_markup=after_trade_kb)
 
         await bot.send_message(

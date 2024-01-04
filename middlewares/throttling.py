@@ -8,7 +8,7 @@ from cachetools import TTLCache
 
 class ThrottlingMessageMiddleware(BaseMiddleware):
     caches = {
-        "default": TTLCache(maxsize=10_000, ttl=0.5),
+        "default": TTLCache(maxsize=10_000, ttl=0.25),
         "five": TTLCache(maxsize=10_000, ttl=5),
         "zero": TTLCache(maxsize=10_000, ttl=0),
         "half": TTLCache(maxsize=10_000, ttl=0.5),
@@ -32,7 +32,7 @@ class ThrottlingMessageMiddleware(BaseMiddleware):
 
 class ThrottlingCallbackQueryMiddleware(BaseMiddleware):
     caches = {
-        "default": TTLCache(maxsize=10_000, ttl=1),
+        "default": TTLCache(maxsize=10_000, ttl=0.25),
         "five": TTLCache(maxsize=10_000, ttl=5),
         "zero": TTLCache(maxsize=10_000, ttl=0),
         "half": TTLCache(maxsize=10_000, ttl=0.5),

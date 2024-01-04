@@ -41,7 +41,7 @@ async def get_free_card(ssn: AsyncSession, user_id):
         duplicate = 1
 
     await ssn.merge(UserCard(
-        user_id=user_id, card_id=card.id,
+        user_id=user_id, card_id=card.id, points=card.points,
         card_rarity=card.rarity, duplicate=duplicate))
 
     await ssn.execute(update(Player).filter(

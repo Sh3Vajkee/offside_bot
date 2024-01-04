@@ -48,7 +48,7 @@ async def lucky_shot(ssn: AsyncSession, user_id, bot):
                 duplicate = 1
 
             await ssn.merge(UserCard(
-                user_id=user_id, card_id=card.id,
+                user_id=user_id, card_id=card.id, points=card.points,
                 card_rarity=card.rarity, duplicate=duplicate))
 
             await ssn.execute(update(Player).filter(
@@ -94,7 +94,7 @@ async def lucky_shot(ssn: AsyncSession, user_id, bot):
                 duplicate = 1
 
             await ssn.merge(UserCard(
-                user_id=user_id, card_id=card.id,
+                user_id=user_id, card_id=card.id, points=card.points,
                 card_rarity=card.rarity, duplicate=duplicate))
 
             await ssn.execute(update(Player).filter(

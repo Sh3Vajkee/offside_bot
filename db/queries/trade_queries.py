@@ -55,6 +55,8 @@ async def create_new_trade(
         return "not_found"
 
     target: Player = target_res[0]
+    if user_id == target.id:
+        return "not_found"
 
     trade = await ssn.merge(Trade(
         status="target_wait", owner=user_id,
@@ -178,6 +180,24 @@ async def close_trade(ssn: AsyncSession, trade_id):
         UserCard.id == owner_card.id).values(
         user_id=trade.target, duplicate=target_duplicate))
 
+    if owner_card.points > target_card.points:
+        diff = owner_card.points - target_card.points
+        owner_rating = -diff
+        target_rating = diff
+    elif target_card.points > owner_card.points:
+        diff = target_card.points - owner_card.points
+        owner_rating = diff
+        target_rating = -diff
+    else:
+        owner_rating = 0
+        target_rating = 0
+
+    await ssn.execute(update(Player).filter(
+        Player.id == trade.owner).values(rating=Player.rating + owner_rating))
+    await ssn.execute(update(Player).filter(
+        Player.id == trade.target).values(rating=Player.rating + target_rating))
+    await ssn.execute(update(Trade).filter(
+        Trade.id == trade_id).values(status="finished"))
     await ssn.commit()
     logging.info(
         f"Traded {trade_id} | user1 {trade.owner} card {trade.owner_card_id} | user2 {trade.target} card {trade.target_card_id}")

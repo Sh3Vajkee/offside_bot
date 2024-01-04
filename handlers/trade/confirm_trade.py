@@ -27,7 +27,7 @@ async def accept_trade_cmd(c: CQ, ssn, bot: Bot, action_queue):
         txt = "✅ Cделка прошла успешно!\nВремя проверить коллекцию"
         await c.message.answer(txt, reply_markup=after_trade_kb)
 
-        await bot.send_message(res.target, txt, reply_markup=after_trade_kb)
+        await bot.send_message(res[0].target, txt, reply_markup=after_trade_kb)
 
     try:
         del action_queue[str(c.from_user.id)]

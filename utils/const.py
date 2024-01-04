@@ -1,5 +1,3 @@
-admin_ids = [5131674802]
-
 channel_username = "@testingchannelsub"
 channel_link = "https://t.me/testingchannelsub"
 
@@ -10,5 +8,5 @@ rarities = [
 ]
 
 images = {
-    "penalty": "123"
+    "penalty": "AgACAgIAAxkBAAEBcT1lls7BRwkLn7rR4Q1IJoCoo-hDIAACvNQxG9oLuEias3ZUv5HFVwEAAwIAA3kAAzQE"
 }
