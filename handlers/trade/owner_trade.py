@@ -33,6 +33,38 @@ async def trade_cmd(c: CQ, state: FSM):
 
 
 @router.callback_query(
+    F.data.startswith("sorttrd_"), flags={"throttling_key": "pages"}
+)
+async def view_trade_sorted_cards_cmd(c: CQ, ssn, state: FSM):
+    c_data = c.data.split("_")[-1]
+    if c_data == "nosort":
+        sorting = "down"
+    elif c_data == "down":
+        sorting = "up"
+    else:
+        sorting = "nosort"
+
+    cards = await get_user_rarity_cards(ssn, c.from_user.id, "all", sorting)
+    if len(cards) == 0:
+        await c.answer("ℹ️ У тебя еще нет карт")
+        await c.message.delete()
+    else:
+        page = 1
+        last = len(cards)
+
+        await state.clear()
+        await c.message.delete()
+
+        txt = await format_view_my_cards_text(cards[0].card)
+        await c.message.answer_photo(
+            cards[0].card.image, txt,
+            reply_markup=card_trade_kb(page, last, sorting, cards[0].card_id))
+
+        await state.set_state(UserStates.owner_trade)
+        await state.update_data(cards=cards, sorting=sorting)
+
+
+@router.callback_query(
     F.data.startswith("trdrar_"), flags={"throttling_key": "pages"}
 )
 async def view_owner_trade_rarity_cards_cmd(c: CQ, ssn, state: FSM):

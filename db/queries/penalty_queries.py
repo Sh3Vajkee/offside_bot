@@ -8,7 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from db.models import CardItem, Penalty, Player, Trade, UserCard
-from utils.misc import send_penalty_action, send_penalty_offer
+from utils.misc import (send_card_penalty_answer, send_card_penalty_offer,
+                        send_penalty_action, send_penalty_offer,
+                        send_random_penalty_offer)
 
 
 async def check_for_active_penalty(ssn: AsyncSession, user_id):
@@ -20,6 +22,88 @@ async def check_for_active_penalty(ssn: AsyncSession, user_id):
         return "available"
 
     return "already_playing"
+
+
+async def check_for_active_penalty_card(ssn: AsyncSession, user_id):
+    trade_q = await ssn.execute(select(Trade).filter(
+        or_(Trade.target == user_id, Trade.owner == user_id)).filter(
+            Trade.status.in_(["target_wait", "owner_wait"])))
+    trade_res = trade_q.fetchone()
+    if trade_res is not None:
+        return "active_trade"
+
+    penalty_q = await ssn.execute(select(Penalty).filter(
+        or_(Penalty.target == user_id, Penalty.owner == user_id)).filter(
+            Penalty.status == "active"))
+    penalty_res = penalty_q.fetchone()
+    if penalty_res is None:
+        return "available"
+
+    return "already_playing"
+
+
+async def find_penalty_opp(ssn: AsyncSession, user_id, bot):
+    penalty_q = await ssn.execute(select(Penalty).filter(
+        or_(Penalty.target == user_id, Penalty.owner == user_id)).filter(
+            Penalty.status == "active"))
+    penalty_res = penalty_q.fetchone()
+    if penalty_res is not None:
+        return "already_playing"
+
+    user_q = await ssn.execute(
+        select(Player).filter(Player.id == user_id))
+    user: Player = user_q.fetchone()[0]
+
+    low_rating = user.rating - 400
+    high_rating = user.rating + 400
+
+    targets_q = await ssn.execute(select(Player).filter(
+        Player.penalty_queue == 1).filter(
+            Player.penalty_rating >= low_rating).filter(
+                Player.penalty_rating <= high_rating))
+    targets = targets_q.scalars().all()
+    if len(targets) == 0:
+        await ssn.execute(update(Player).filter(
+            Player.id == user_id).values(penalty_queue=1))
+        await ssn.commit()
+        return "queue_on"
+
+    target: Player = random.choice(targets)
+    if target.penalty_queue == 1:
+        await ssn.execute(update(Player).filter(
+            Player.id == target.id).values(penalty_queue=0))
+    if user.penalty_queue == 1:
+        await ssn.execute(update(Player).filter(
+            Player.id == user.id).values(penalty_queue=0))
+
+    date = dt.datetime.now()
+    date_ts = int(date.timestamp())
+
+    penalty = await ssn.merge(Penalty(
+        owner=user_id, owner_username=user.username,
+        target=target.id, target_username=target.username))
+    await ssn.commit()
+    penalty_id = penalty.id
+    msg_id = await send_random_penalty_offer(bot, target.id, user.username, penalty_id)
+    if msg_id == 0:
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == penalty_id).values(status="error"))
+        await ssn.commit()
+        return "error"
+    else:
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == penalty_id).values(
+                target_msg_id=msg_id, last_action=date_ts+60))
+        await ssn.commit()
+        logging.info(
+            f"User {user_id} created random penaly #{penalty_id} vs {target.id} ({target.username})")
+        return penalty_id, date_ts + 60, target.username
+
+
+async def cancel_pen_queue(ssn: AsyncSession, user_id):
+    await ssn.execute(update(Player).filter(
+        Player.id == user_id).values(penalty_queue=0))
+    await ssn.commit()
 
 
 async def create_new_penalty(ssn: AsyncSession, user_id, username, target_username, bot):
@@ -55,6 +139,13 @@ async def create_new_penalty(ssn: AsyncSession, user_id, username, target_userna
     if target_penalty_res is not None:
         return "target_already_playing"
 
+    if target.penalty_queue == 1:
+        await ssn.execute(update(Player).filter(
+            Player.id == target.id).values(penalty_queue=0))
+    if user.penalty_queue == 1:
+        await ssn.execute(update(Player).filter(
+            Player.id == user.id).values(penalty_queue=0))
+
     date = dt.datetime.now()
     date_ts = int(date.timestamp())
 
@@ -77,6 +168,120 @@ async def create_new_penalty(ssn: AsyncSession, user_id, username, target_userna
         logging.info(
             f"User {user_id} created new penaly #{penalty_id} to {target.id} ({target.username})")
         return penalty_id, date_ts + 60
+
+
+async def create_new_card_penalty(ssn: AsyncSession, user_id, username, target_username, card_id, bot):
+    penalty_q = await ssn.execute(select(Penalty).filter(
+        or_(Penalty.target == user_id, Penalty.owner == user_id)).filter(
+            Penalty.status == "active"))
+    penalty_res = penalty_q.fetchone()
+    if penalty_res is not None:
+        return "already_playing"
+
+    cards_q = await ssn.execute(select(UserCard).filter(
+        UserCard.card_id == card_id).filter(
+            UserCard.user_id == user_id).options(
+                selectinload(UserCard.card)))
+    cards = cards_q.scalars().all()
+    if len(cards) == 0:
+        return "no_card"
+
+    image = cards[0].card.image
+
+    target_q = await ssn.execute(
+        select(Player).filter(Player.username.ilike(target_username)))
+    target_res = target_q.fetchone()
+    if target_res is None:
+        return "not_found"
+
+    if user_id == target_res[0].id:
+        return "self_error"
+
+    user_q = await ssn.execute(
+        select(Player).filter(Player.id == user_id))
+    user: Player = user_q.fetchone()[0]
+    target: Player = target_res[0]
+
+    rating_delta = abs(user.penalty_rating - target.penalty_rating)
+    if rating_delta > 300:
+        return "rating_diff"
+
+    target_penalty_q = await ssn.execute(select(Penalty).filter(
+        or_(Penalty.target == target.id, Penalty.owner == target.id)).filter(
+            Penalty.status == "active"))
+    target_penalty_res = target_penalty_q.fetchone()
+    if target_penalty_res is not None:
+        return "target_already_playing"
+
+    if target.penalty_queue == 1:
+        await ssn.execute(update(Player).filter(
+            Player.id == target.id).values(penalty_queue=0))
+    if user.penalty_queue == 1:
+        await ssn.execute(update(Player).filter(
+            Player.id == user.id).values(penalty_queue=0))
+
+    date = dt.datetime.now()
+    date_ts = int(date.timestamp())
+
+    penalty = await ssn.merge(Penalty(
+        owner=user_id, owner_username=username, owner_card_id=card_id,
+        target=target.id, target_username=target.username))
+    await ssn.commit()
+    penalty_id = penalty.id
+    msg_id = await send_card_penalty_offer(
+        bot, target.id, username, penalty_id, image)
+    if msg_id == 0:
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == penalty_id).values(status="error"))
+        await ssn.commit()
+        return "error"
+    else:
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == penalty_id).values(
+                target_msg_id=msg_id, last_action=date_ts+60))
+        await ssn.commit()
+        logging.info(
+            f"User {user_id} created new card penaly #{penalty_id} to {target.id} ({target.username})")
+        return penalty_id, date_ts + 60
+
+
+async def answer_card_penalty(ssn: AsyncSession, user_id, pen_id, card_id, bot):
+    penalty_q = await ssn.execute(
+        select(Penalty).filter(Penalty.id == pen_id))
+    penalty: Penalty = penalty_q.fetchone()[0]
+
+    if penalty.status != "active":
+        return "not_active"
+
+    cards_q = await ssn.execute(select(UserCard).filter(
+        UserCard.card_id == card_id).filter(
+            UserCard.user_id == user_id).options(
+                selectinload(UserCard.card)))
+    cards = cards_q.scalars().all()
+    if len(cards) == 0:
+        return "no_card"
+
+    image = cards[0].card.image
+
+    date = dt.datetime.now()
+    date_ts = int(date.timestamp())
+
+    msg_id = await send_card_penalty_answer(
+        bot, penalty.owner, penalty.target_username, pen_id, image)
+    if msg_id == 0:
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == pen_id).values(status="error"))
+        await ssn.commit()
+        return "error"
+    else:
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == pen_id).values(
+                target_card_id=card_id,
+                owner_msg_id=msg_id, last_action=date_ts+60))
+        await ssn.commit()
+        logging.info(
+            f"User {user_id} answered card penaly #{pen_id}")
+        return date_ts + 60, penalty.owner_username
 
 
 async def check_penalty(db, penalty_id, date_ts):

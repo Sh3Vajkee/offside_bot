@@ -31,6 +31,18 @@ async def games_cmd(c: CQ, action_queue):
     await c.message.edit_text(txt, reply_markup=games_kb)
 
 
+@router.callback_query(F.data == "back_to_games", flags=flags)
+async def back_to_games_cmd(c: CQ, action_queue):
+    try:
+        del action_queue[str(c.from_user.id)]
+    except Exception as error:
+        logging.info(f"Action delete error\n{error}")
+
+    txt = "Тут находятся мини-игры, в которые можешь поиграть с друзьями и выяснить, кто из вас лучший🥇"
+    await c.message.delete()
+    await c.message.answer(txt, reply_markup=games_kb)
+
+
 @router.callback_query(F.data == "luckystrike", flags=flags)
 async def lucky_shot_cmd(c: CQ, action_queue):
     try:

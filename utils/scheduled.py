@@ -31,19 +31,28 @@ async def check_penalty_timer(db, penalty_id, date_ts, delay, bot: Bot):
 
     if penalty:
         if penalty.kicker == penalty.keeper == 0:
+            if penalty.target_card_id == 0:
+                del_id = penalty.owner
+                del_msg_id = penalty.owner_msg_id
+                u_id = penalty.target
+            else:
+                del_id = penalty.target
+                del_msg_id = penalty.target_msg_id
+                u_id = penalty.owner
+
             try:
-                await bot.delete_message(penalty.target, penalty.target_msg_id)
+                await bot.delete_message(del_id, del_msg_id)
             except Exception as error:
-                logging.error(f"Delete error | chat {penalty.target}\n{error}")
+                logging.error(f"Delete error | chat {del_id}\n{error}")
 
             await asyncio.sleep(.2)
 
             txt = "К сожалению, ваш оппонент не принял игру за минуту"
             try:
                 await bot.send_message(
-                    penalty.owner, txt, reply_markup=to_main_btn)
+                    u_id, txt, reply_markup=to_main_btn)
             except Exception as error:
-                logging.error(f"Send error | chat {penalty.owner}\n{error}")
+                logging.error(f"Send error | chat {u_id}\n{error}")
 
         else:
             try:

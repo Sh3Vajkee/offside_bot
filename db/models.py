@@ -13,7 +13,9 @@ class Player(Base):
 
     card_quants = Column(BigInteger, default=0)
     rating = Column(BigInteger, default=0)
+
     penalty_rating = Column(BigInteger, default=100)
+    penalty_queue = Column(Integer, default=0)
 
     last_open = Column(BigInteger, default=0)
 
@@ -82,12 +84,14 @@ class Penalty(Base):
     owner_username = Column(String(255))
     owner_score = Column(Integer, default=0)
     owner_txt = Column(String(15), default="")
+    owner_card_id = Column(Integer, default=0)
 
     target = Column(BigInteger)
     target_msg_id = Column(BigInteger)
     target_username = Column(String(255))
     target_score = Column(Integer, default=0)
     target_txt = Column(String(15), default="")
+    target_card_id = Column(Integer, default=0)
 
     round = Column(Integer, default=1)
 

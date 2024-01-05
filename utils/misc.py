@@ -4,7 +4,8 @@ import random
 from aiogram import Bot
 
 from db.models import UserCard
-from keyboards.games_kbs import penalty_action_kb, penalty_offer_kb
+from keyboards.games_kbs import (card_penalty_answer_kb, card_penalty_offer_kb,
+                                 penalty_action_kb, penalty_offer_kb)
 from utils.const import images
 
 
@@ -62,6 +63,49 @@ async def send_action_emoji(bot: Bot, user_id, emoji):
 
 async def send_penalty_offer(bot: Bot, user_id, username, pen_id):
     txt = f"{username} предлагает вам сыграть в Пенальти!"
+
+    msg_id = 0
+    try:
+        msg = await bot.send_message(
+            user_id, txt, reply_markup=penalty_offer_kb(pen_id))
+        msg_id = msg.message_id
+    except Exception as error:
+        logging.error(f"Send error | chat {user_id}\n{error}")
+
+    return msg_id
+
+
+async def send_card_penalty_offer(bot: Bot, user_id, username, pen_id, image):
+    txt = f"{username} предлагает вам сыграть в Пенальти!"
+
+    msg_id = 0
+    try:
+        msg = await bot.send_photo(
+            user_id, image, caption=txt, reply_markup=card_penalty_offer_kb(pen_id))
+        msg_id = msg.message_id
+    except Exception as error:
+        logging.error(f"Send error | chat {user_id}\n{error}")
+
+    return msg_id
+
+
+async def send_card_penalty_answer(bot: Bot, user_id, username, pen_id, image):
+    txt = f"{username} поставил эту карту в Пенальти!"
+
+    msg_id = 0
+    try:
+        msg = await bot.send_photo(
+            user_id, image, caption=txt,
+            reply_markup=card_penalty_answer_kb(pen_id))
+        msg_id = msg.message_id
+    except Exception as error:
+        logging.error(f"Send error | chat {user_id}\n{error}")
+
+    return msg_id
+
+
+async def send_random_penalty_offer(bot: Bot, user_id, username, pen_id):
+    txt = f"Соперник найден!\nВаш соперник - {username}"
 
     msg_id = 0
     try:
