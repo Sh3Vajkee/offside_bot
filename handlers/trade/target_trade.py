@@ -17,7 +17,7 @@ from keyboards.main_kbs import to_main_btn
 from keyboards.trade_kbs import (after_trade_kb, card_trade_kb,
                                  offer_to_owner_kb, offer_to_target_kb,
                                  target_card_trade_kb, target_cards_kb,
-                                 trade_kb)
+                                 target_rarity_cards_kb, trade_kb)
 from utils.format_texts import format_view_my_cards_text
 from utils.states import UserStates
 
@@ -164,3 +164,11 @@ async def cancel_last_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
             user_id = res.owner
         await bot.send_message(
             user_id, "❌ Увы, сделка сорвалась.", reply_markup=after_trade_kb)
+
+
+@router.callback_query(F.data.startswith("answtraderarities_"), flags=flags)
+async def rarities_target_trade_cmd(c: CQ):
+    trade_id = int(c.data.split("_")[-1])
+    txt = "Выберите редкость карт"
+    await c.message.edit_text(
+        txt, reply_markup=target_rarity_cards_kb(trade_id))

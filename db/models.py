@@ -98,3 +98,31 @@ class Penalty(Base):
     last_action = Column(BigInteger, default=0)
 
     winner = Column(BigInteger, default=0)
+
+
+class PayItem(Base):
+    __tablename__ = "payitem"
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    status = Column(String(25), default="not_paid")
+    label = Column(String(50))
+    url = Column(Text)
+
+    user_id = Column(BigInteger)
+    amount = Column(Integer)
+    kind = Column(String(50))
+
+
+class CardPack(Base):
+    __tablename__ = "cardpack"
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    user_id = Column(BigInteger)
+
+
+class CardXPack(Base):
+    __tablename__ = "cardxpack"
+
+    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    pack_id = Column(Integer)
+    user_card_id = Column(BigInteger)

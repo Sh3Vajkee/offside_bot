@@ -7,10 +7,11 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
-from db.queries.collection_queries import (get_user_list_cards,
+from db.queries.collection_queries import (get_pack_cards, get_user_list_cards,
                                            get_user_rarity_cards)
 from keyboards.cards_kbs import (filter_my_cards_kb, my_card_list_kb,
-                                 my_card_rarities_kb, my_cards_kb)
+                                 my_card_rarities_kb, my_cards_kb,
+                                 pack_cards_kb)
 from keyboards.cb_data import PageCB
 from utils.format_texts import (format_list_my_cards_text,
                                 format_view_my_cards_text)
@@ -119,7 +120,7 @@ async def view_sorted_cards_cmd(c: CQ, ssn, state: FSM):
         await state.update_data(cards=cards, sorting=sorting)
 
 
-@router.callback_query(F.data == "back_to_mycards", flags=flags)
+@router.callback_query(F.data == "mycardsrarities", flags=flags)
 async def get_card_cmd(c: CQ):
     txt = "Выберите редкость карт"
     await c.message.edit_text(txt, reply_markup=my_card_rarities_kb)
@@ -131,3 +132,46 @@ async def list_of_my_cards_cmd(c: CQ, ssn):
     data = await calc_cards_quant(cards)
     txt = await format_list_my_cards_text(data)
     await c.message.edit_text(txt, reply_markup=my_card_list_kb)
+
+
+@router.callback_query(F.data.startswith("viewpack_"), flags=flags)
+async def view_pack_cards_cmd(c: CQ, ssn, state: FSM):
+    pack_id = int(c.data.split("_")[-1])
+
+    cards = await get_pack_cards(ssn, pack_id, c.from_user.id)
+    page = 1
+    last = len(cards)
+
+    await state.clear()
+
+    txt = await format_view_my_cards_text(cards[0].card)
+    await c.message.answer_photo(
+        cards[0].card.image, txt,
+        reply_markup=pack_cards_kb(page, last))
+
+    await state.set_state(UserStates.pack_cards)
+    await state.update_data(cards=cards)
+
+
+@router.callback_query(
+    StateFilter(UserStates.pack_cards),
+    PageCB.filter(), flags={"throttling_key": "pages"}
+)
+async def paginate_pack_cards_cmd(c: CQ, state: FSM, callback_data: PageCB):
+    page = int(callback_data.num)
+    last = int(callback_data.last)
+
+    data = await state.get_data()
+    cards = data.get("cards")
+
+    card = cards[page-1]
+    txt = await format_view_my_cards_text(card.card)
+
+    media = types.InputMediaPhoto(caption=txt, media=card.card.image)
+
+    try:
+        await c.message.edit_media(
+            media=media, reply_markup=pack_cards_kb(page, last))
+    except Exception as error:
+        logging.error(f"Edit error\n{error}")
+        await c.answer()

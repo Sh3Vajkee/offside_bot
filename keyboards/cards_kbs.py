@@ -70,7 +70,7 @@ buy_cards_kb = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
-                text="💵 Купить Легендарный набор", callback_data="cardbuy_50"),
+                text="💵 Купить Легендарный набор", callback_data="cardbuy_leg"),
         ],
         [
             InlineKeyboardButton(
@@ -197,3 +197,30 @@ my_card_list_kb = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+def pack_cards_kb(page, last):
+    btns = []
+
+    page_btns = []
+    if page > 1:
+        page_btns.append(InlineKeyboardButton(
+            text="<<", callback_data=PageCB(num=1, last=last).pack()))
+        page_btns.append(InlineKeyboardButton(
+            text="<", callback_data=PageCB(num=page-1, last=last).pack()))
+
+    page_btns.append(InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless"))
+
+    if page < last:
+        page_btns.append(InlineKeyboardButton(
+            text=">", callback_data=PageCB(num=page+1, last=last).pack()))
+        page_btns.append(InlineKeyboardButton(
+            text=">>", callback_data=PageCB(num=last, last=last).pack()))
+
+    btns.append(page_btns)
+
+    btns.append([
+        InlineKeyboardButton(text="⏪ Назад", callback_data="back_to_mycards")])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=btns)
+    return keyboard

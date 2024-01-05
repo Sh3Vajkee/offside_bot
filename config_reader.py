@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     db_url: PostgresDsn
 
+    wallet: str
     yoo_token: SecretStr
 
     class Config:

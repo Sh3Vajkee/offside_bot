@@ -187,3 +187,89 @@ after_trade_kb = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+trade_rarities_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Обычные", callback_data="trdrar_ОБЫЧНАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Необычные", callback_data="trdrar_НЕОБЫЧНАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Редкие", callback_data="trdrar_РЕДКАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Эпические", callback_data="trdrar_ЭПИЧЕСКАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Уникальные", callback_data="trdrar_УНИКАЛЬНАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Легендарные", callback_data="trdrar_ЛЕГЕНДАРНАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Эксклюзивные", callback_data="trdrar_ЭКСКЛЮЗИВНАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="Мифические", callback_data="trdrar_МИФИЧЕСКАЯ"),
+        ],
+        [
+            InlineKeyboardButton(
+                text="⏪ Назад", callback_data="back_to_mycards")
+        ]
+    ]
+)
+
+
+def target_rarity_cards_kb(trade_id):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Обычные", callback_data=f"answtrdrar_ОБЫЧНАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Необычные", callback_data=f"answtrdrar_НЕОБЫЧНАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Редкие", callback_data=f"answtrdrar_РЕДКАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Эпические", callback_data=f"answtrdrar_ЭПИЧЕСКАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Уникальные", callback_data=f"answtrdrar_УНИКАЛЬНАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Легендарные", callback_data=f"answtrdrar_ЛЕГЕНДАРНАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Эксклюзивные", callback_data=f"answtrdrar_ЭКСКЛЮЗИВНАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Мифические", callback_data=f"answtrdrar_МИФИЧЕСКАЯ_{trade_id}"),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⏪ Назад", callback_data="backtostart")
+            ]
+        ]
+    )
+    return keyboard

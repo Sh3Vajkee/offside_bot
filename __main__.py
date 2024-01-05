@@ -15,6 +15,7 @@ from handlers import info, ratings, start
 from handlers.admin import add_card, admin_main
 from handlers.card import buy_cards, get_card, my_cards
 from handlers.games import lucky_shot, penalty
+from handlers.payments import cards_buy, ls_buy
 from handlers.trade import confirm_trade, owner_trade, target_trade
 from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import (ThrottlingCallbackQueryMiddleware,
@@ -81,6 +82,9 @@ async def main():
     dp.include_router(admin_main.router)
     dp.include_router(add_card.router)
 
+    dp.include_router(ls_buy.router)
+    dp.include_router(cards_buy.router)
+
     # Регистрация мидлварей
     dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
     dp.message.middleware(ThrottlingMessageMiddleware())
@@ -99,7 +103,7 @@ async def main():
         await dp.start_polling(
             bot, db=sessionmaker, yoo_token=config.yoo_token.get_secret_value(),
             allowed_updates=dp.resolve_used_update_types(),
-            action_queue=action_queue)
+            wallet=config.wallet, action_queue=action_queue)
     finally:
         await dp.storage.close()
         await bot.session.close()

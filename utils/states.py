@@ -6,6 +6,7 @@ class UserStates(StatesGroup):
     owner_trade = State()
     target_trade = State()
     target_penalty = State()
+    pack_cards = State()
 
 
 class AdminStates(StatesGroup):
