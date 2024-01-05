@@ -76,7 +76,7 @@ async def paid_leg_cardpack_cmd(c: CQ, callback_data: PayCB, ssn, yoo_token, act
     result = "found"
     if result == "found":
         await bot.send_chat_action(c.from_user.id, "typing")
-        pack_id = await add_leg_card_pack(ssn, c.from_user.id)
+        pack_id = await add_leg_card_pack(ssn, c.from_user.id, pay_id)
         logging.info(
             f"User {c.from_user.id} payd bill {pay_id} label {pay.label} kind {pay.kind}")
         txt = "Успешно ✅!\nПолучите ваш заказ!"
@@ -104,7 +104,7 @@ async def paid_cardpack_cmd(c: CQ, callback_data: PayCB, ssn, yoo_token, action_
         kind = callback_data.kind
         quant = int(kind[5:])
         await bot.send_chat_action(c.from_user.id, "typing")
-        pack_id = await add_cards_pack(ssn, c.from_user.id, quant)
+        pack_id = await add_cards_pack(ssn, c.from_user.id, quant, pay_id)
         logging.info(
             f"User {c.from_user.id} payd bill {pay_id} label {pay.label} kind {pay.kind}")
         txt = "Успешно ✅!\nПолучите ваш заказ!"

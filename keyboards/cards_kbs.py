@@ -224,3 +224,17 @@ def pack_cards_kb(page, last):
         InlineKeyboardButton(text="⏪ Назад", callback_data="back_to_mycards")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=btns)
     return keyboard
+
+
+back_to_cards_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="🧑💻 В личный кабинет", callback_data="startplay")
+        ],
+        [
+            InlineKeyboardButton(
+                text="⏪ Назад", callback_data="getcard")
+        ]
+    ]
+)

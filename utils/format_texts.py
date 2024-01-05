@@ -1,3 +1,4 @@
+import datetime
 from textwrap import dedent
 
 from db.models import CardItem, Penalty, Player, UserCard
@@ -128,3 +129,20 @@ async def format_penalty_final_result_text(penalty: Penalty):
         winner_txt = "\n🏆 Вы забили одинаковое количество голов! Предлагаем вам переигровку или же ничью, выбор за вами!"
 
     return target_res_txt + "\n" + owner_res_txt + winner_txt
+
+
+async def format_user_info_text(user: Player):
+    last_date = datetime.datetime.fromtimestamp(user.last_open - 86400)
+    date_str = last_date.strftime("%d.%m.%Y %H:%M")
+    txt = f"""
+    Данные по пользователю {user.username} (ID {user.id})
+
+    Дата регистрации - {user.joined_at_txt}
+    Собранное количество карточек - {user.card_quants}
+    Рейтинг собранных карточек - {user.rating}
+    Рейтинг в игре пенальти - {user.penalty_rating}
+
+    Забирал бесплатную карточку - {date_str}
+    Количество транзакций - {user.transactions}
+    """
+    return dedent(txt)

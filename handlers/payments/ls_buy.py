@@ -63,7 +63,7 @@ async def paid_ls_cmd(c: CQ, callback_data: PayCB, ssn, yoo_token):
     # result = await check_bill_for_pay(pay.label, yoo_token)
     result = "found"
     if result == "found":
-        await add_ls_after_pay(ssn, c.from_user.id)
+        await add_ls_after_pay(ssn, c.from_user.id, pay_id)
         logging.info(
             f"User {c.from_user.id} payd bill {pay_id} label {pay.label} kind {pay.kind}")
         txt = "Успешно ✅!\nКупленные удары уже начисленны вам, время проверить удачу!"

@@ -10,8 +10,8 @@ from aiogram.types import Message as Mes
 from db.models import CardItem, Trade
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.trade_queries import (check_target_trade, create_new_trade,
-                                      decline_last_trade, decline_trade,
-                                      update_trade_status)
+                                      decline_all_trades, decline_last_trade,
+                                      decline_trade, update_trade_status)
 from keyboards.cb_data import PageCB
 from keyboards.main_kbs import to_main_btn
 from keyboards.trade_kbs import (after_trade_kb, card_trade_kb,
@@ -172,3 +172,12 @@ async def rarities_target_trade_cmd(c: CQ):
     txt = "Выберите редкость карт"
     await c.message.edit_text(
         txt, reply_markup=target_rarity_cards_kb(trade_id))
+
+
+@router.callback_query(F.data == "cancel_all_trades", flags=flags)
+async def cancel_all_trades_cmd(c: CQ, ssn):
+    await decline_all_trades(ssn, c.from_user.id)
+
+    await c.message.edit_text(
+        "Вы успешно завершили все активные обмены",
+        reply_markup=after_trade_kb)

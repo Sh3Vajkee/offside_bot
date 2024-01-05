@@ -121,7 +121,7 @@ async def view_sorted_cards_cmd(c: CQ, ssn, state: FSM):
 
 
 @router.callback_query(F.data == "mycardsrarities", flags=flags)
-async def get_card_cmd(c: CQ):
+async def rarity_cards_cmd(c: CQ):
     txt = "Выберите редкость карт"
     await c.message.edit_text(txt, reply_markup=my_card_rarities_kb)
 

@@ -119,6 +119,14 @@ async def decline_last_trade(ssn: AsyncSession, user_id):
     return trade_res[0]
 
 
+async def decline_all_trades(ssn: AsyncSession, user_id):
+    await ssn.execute(update(Trade).filter(
+        or_(Trade.target == user_id, Trade.owner == user_id)).filter(
+            Trade.status.in_(["target_wait", "owner_wait"])).values(status="canceled"))
+
+    await ssn.commit()
+
+
 async def close_trade(ssn: AsyncSession, trade_id):
     trade_q = await ssn.execute(
         select(Trade).filter(Trade.id == trade_id))

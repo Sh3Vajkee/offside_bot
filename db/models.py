@@ -126,3 +126,18 @@ class CardXPack(Base):
     id = Column(BigInteger, autoincrement=True, primary_key=True)
     pack_id = Column(Integer)
     user_card_id = Column(BigInteger)
+
+
+class PromoCode(Base):
+    __tablename__ = 'promocode'
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    promo = Column(Text)
+    card_id = Column(Integer)
+    quant = Column(Integer, default=2000000)
+
+
+class PromoUser(Base):
+    __tablename__ = 'promouser'
+    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    promo_id = Column(Integer)
+    user_id = Column(BigInteger)

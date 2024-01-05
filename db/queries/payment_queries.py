@@ -38,13 +38,21 @@ async def get_payment_info(ssn: AsyncSession, pay_id):
     return pay
 
 
-async def add_ls_after_pay(ssn: AsyncSession, user_id):
+async def add_ls_after_pay(ssn: AsyncSession, user_id, pay_id):
+    await ssn.execute(update(PayItem).filter(
+        PayItem.id == pay_id).values(status="paid"))
+
     await ssn.execute(update(Player).filter(
-        Player.id == user_id).values(lucky_quants=Player.lucky_quants + 3))
+        Player.id == user_id).values(
+            lucky_quants=Player.lucky_quants + 3,
+            transactions=Player.transactions + 1))
     await ssn.commit()
 
 
-async def add_leg_card_pack(ssn: AsyncSession, user_id):
+async def add_leg_card_pack(ssn: AsyncSession, user_id, pay_id):
+    await ssn.execute(update(PayItem).filter(
+        PayItem.id == pay_id).values(status="paid"))
+
     leg_cards_q = await ssn.execute(
         select(CardItem).filter(CardItem.rarity == "ЛЕГЕНДАРНАЯ"))
     leg_cards = leg_cards_q.scalars().all()
@@ -94,6 +102,7 @@ async def add_leg_card_pack(ssn: AsyncSession, user_id):
     await ssn.execute(update(Player).filter(
         Player.id == user_id).values(
         rating=Player.rating + points,
+        transactions=Player.transactions + 1,
         card_quants=Player.card_quants + 10))
     await ssn.commit()
     pack_id = new_pack.id
@@ -106,7 +115,10 @@ async def add_leg_card_pack(ssn: AsyncSession, user_id):
     return pack_id
 
 
-async def add_cards_pack(ssn: AsyncSession, user_id, quant):
+async def add_cards_pack(ssn: AsyncSession, user_id, quant, pay_id):
+    await ssn.execute(update(PayItem).filter(
+        PayItem.id == pay_id).values(status="paid"))
+
     points = 0
     u_cards_ids = []
 
@@ -136,6 +148,7 @@ async def add_cards_pack(ssn: AsyncSession, user_id, quant):
     await ssn.execute(update(Player).filter(
         Player.id == user_id).values(
         rating=Player.rating + points,
+        transactions=Player.transactions + 1,
         card_quants=Player.card_quants + quant))
     await ssn.commit()
     pack_id = new_pack.id

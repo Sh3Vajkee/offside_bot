@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from config_reader import config
 from db.base import Base
 from handlers import info, ratings, start
-from handlers.admin import add_card, admin_main
+from handlers.admin import add_card, add_promo, admin_main, edit_cards
 from handlers.card import buy_cards, get_card, my_cards
 from handlers.games import lucky_shot, penalty
 from handlers.payments import cards_buy, ls_buy
@@ -81,6 +81,8 @@ async def main():
 
     dp.include_router(admin_main.router)
     dp.include_router(add_card.router)
+    dp.include_router(edit_cards.router)
+    dp.include_router(add_promo.router)
 
     dp.include_router(ls_buy.router)
     dp.include_router(cards_buy.router)

@@ -7,6 +7,7 @@ class UserStates(StatesGroup):
     target_trade = State()
     target_penalty = State()
     pack_cards = State()
+    promo_text = State()
 
 
 class AdminStates(StatesGroup):
@@ -14,3 +15,12 @@ class AdminStates(StatesGroup):
     card_image = State()
 
     image_id = State()
+
+    view_cards = State()
+    new_image = State()
+    new_text = State()
+
+    promo_text = State()
+    promo_card = State()
+
+    user_info = State()

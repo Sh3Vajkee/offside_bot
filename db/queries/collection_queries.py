@@ -2,7 +2,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from db.models import CardXPack, UserCard
+from db.models import CardItem, CardXPack, UserCard
 
 
 async def get_user_rarity_cards(ssn: AsyncSession, user_id, rarity, sorting):
@@ -55,6 +55,17 @@ async def get_pack_cards(ssn: AsyncSession, pack_id, user_id):
             UserCard.id.in_(pack_ids)).order_by(
                 UserCard.points.desc()).options(
                     selectinload(UserCard.card)))
+    cards = cards_q.scalars().all()
+
+    return cards
+
+
+async def get_rarity_cards(ssn: AsyncSession, rarity):
+    if rarity == "all":
+        cards_q = await ssn.execute(select(CardItem))
+    else:
+        cards_q = await ssn.execute(select(CardItem).filter(
+            CardItem.rarity == rarity))
     cards = cards_q.scalars().all()
 
     return cards
