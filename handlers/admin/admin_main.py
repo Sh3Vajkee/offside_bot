@@ -1,18 +1,13 @@
-import asyncio
-import logging
-
-from aiogram import Bot, F, Router, types
+from aiogram import F, Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
 from db.queries.admin_queries import get_adm_user_info
-from db.queries.global_queries import get_user_info
 from filters.filters import IsAdmin
 from keyboards.admin_kbs import (admin_cards_kb, admin_kb, admin_promos_kb,
                                  back_to_admin_btn)
-from keyboards.main_kbs import cancel_btn
 from utils.format_texts import format_user_info_text
 from utils.states import AdminStates
 

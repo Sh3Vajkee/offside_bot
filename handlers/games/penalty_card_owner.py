@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from textwrap import dedent
 
 from aiogram import Bot, F, Router, types
 from aiogram.filters import StateFilter
@@ -8,30 +7,16 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
-from db.models import CardItem, Penalty, Player
 from db.queries.collection_queries import get_user_rarity_cards
-from db.queries.games_queries import lucky_shot
-from db.queries.penalty_queries import (cancel_pen_queue, cancel_penalty,
-                                        check_for_active_penalty,
-                                        check_for_active_penalty_card,
+from db.queries.penalty_queries import (check_for_active_penalty_card,
                                         create_new_card_penalty,
-                                        create_new_penalty, find_penalty_opp,
-                                        keeper_action, kicker_action,
-                                        penalty_switch, start_penalty)
-from keyboards.cards_kbs import accept_new_card_btn
+                                        start_card_penalty)
 from keyboards.cb_data import PageCB
-from keyboards.games_kbs import (after_penalty_kb, cancel_penalty_queue_btn,
-                                 card_pen_kb, card_penalty_kb, draw_penalty_kb,
-                                 games_kb, lucky_shot_btn, no_free_ls_btn,
-                                 pen_rarities_kb, penalty_kind_kb,
+from keyboards.games_kbs import (card_pen_kb, card_penalty_kb, pen_rarities_kb,
                                  penalty_opp_kb, to_games_btn)
 from keyboards.main_kbs import to_main_btn
 from middlewares.actions import ActionMiddleware
-from utils.format_texts import (format_new_free_card_text,
-                                format_penalty_final_result_text,
-                                format_penalty_round_result_text,
-                                format_view_my_cards_text)
-from utils.misc import format_delay_text
+from utils.format_texts import format_view_my_cards_text
 from utils.scheduled import check_penalty_timer
 from utils.states import UserStates
 
@@ -232,3 +217,20 @@ async def save_target_card_pen_username_cmd(m: Mes, state: FSM, ssn, bot: Bot, d
         txt = f"📩Ваше предложение сыграть в Пенальти было отправлено {target}!"
         await m.answer(txt)
         asyncio.create_task(check_penalty_timer(db, res[0], res[1], 60, bot))
+
+
+@router.callback_query(F.data.startswith("pencardstart_"), flags=flags)
+async def start_card_penalty_cmd(c: CQ, ssn, bot: Bot, action_queue, db):
+    pen_id = int(c.data.split("_")[-1])
+    await c.message.delete_reply_markup()
+
+    res = await start_card_penalty(ssn, pen_id, bot)
+    if res in ("not_active", "error"):
+        await c.message.answer(
+            "❌ Эта игра больше недоступна", reply_markup=to_main_btn)
+    asyncio.create_task(check_penalty_timer(db, pen_id, res, 180, bot))
+
+    try:
+        del action_queue[str(c.from_user.id)]
+    except Exception as error:
+        logging.info(f"Action delete error\n{error}")

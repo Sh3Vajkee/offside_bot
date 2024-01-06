@@ -2,7 +2,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 
-from keyboards.cb_data import PageCB, PayCB
+from keyboards.cb_data import PayCB
 
 
 def pay_kb(pay_id, url, kind):

@@ -121,12 +121,20 @@ async def format_penalty_final_result_text(penalty: Penalty):
     owner_res_txt += penalty.owner_txt.replace("0", "❌").replace("1", "⚽️")
     target_res_txt += penalty.target_txt.replace("0", "❌").replace("1", "⚽️")
 
-    if penalty.owner == penalty.winner:
-        winner_txt = f"\nПобедитель - {penalty.owner_username}"
-    elif penalty.target < penalty.winner:
-        winner_txt = f"\nПобедитель - {penalty.target_username}"
+    if penalty.owner_card_id == 0:
+        if penalty.owner == penalty.winner:
+            winner_txt = f"\nПобедитель - {penalty.owner_username}"
+        elif penalty.target == penalty.winner:
+            winner_txt = f"\nПобедитель - {penalty.target_username}"
+        else:
+            winner_txt = "\n🏆 Вы забили одинаковое количество голов! Предлагаем вам переигровку или же ничью, выбор за вами!"
     else:
-        winner_txt = "\n🏆 Вы забили одинаковое количество голов! Предлагаем вам переигровку или же ничью, выбор за вами!"
+        if penalty.owner == penalty.winner:
+            winner_txt = f"\n{penalty.owner_username} победил и получил карту соперника"
+        elif penalty.target == penalty.winner:
+            winner_txt = f"\n{penalty.target_username} победил и получил карту соперника"
+        else:
+            winner_txt = "\n🏆 Вы забили одинаковое количество голов! Предлагаем вам переигровку или же ничью, выбор за вами!"
 
     return target_res_txt + "\n" + owner_res_txt + winner_txt
 
@@ -144,5 +152,24 @@ async def format_user_info_text(user: Player):
 
     Забирал бесплатную карточку - {date_str}
     Количество транзакций - {user.transactions}
+    """
+    return dedent(txt)
+
+
+async def format_craft_text(duplicates):
+    txt = f"""
+    🛠️ Ты находишься в меню крафта.
+
+    Тут ты можешь обменять несколько карт одной редкости на карту более высокой редкости.
+
+    <b>Количество карт:</b>
+
+    ⚪️ Обычные карты: {duplicates[0]}
+    🟡 Необычные карты: {duplicates[1]}
+    🔵 Редкие карты: {duplicates[2]}
+    🟣 Эпические карты: {duplicates[3]}
+    🟢 Уникальные карты: {duplicates[4]}
+
+    <b>Чтобы осуществить обмен - нужно иметь 5 карт одной редкости.</b>
     """
     return dedent(txt)

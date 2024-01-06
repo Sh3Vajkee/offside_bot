@@ -1,41 +1,18 @@
 import asyncio
 import logging
-from textwrap import dedent
 
-from aiogram import Bot, F, Router, types
+from aiogram import F, Router, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
-from db.models import CardItem, Penalty, Player
 from db.queries.collection_queries import get_user_rarity_cards
-from db.queries.games_queries import lucky_shot
-from db.queries.penalty_queries import (answer_card_penalty, cancel_pen_queue,
-                                        cancel_penalty,
-                                        check_for_active_penalty,
-                                        check_for_active_penalty_card,
-                                        create_new_card_penalty,
-                                        create_new_penalty, find_penalty_opp,
-                                        keeper_action, kicker_action,
-                                        penalty_switch, start_penalty)
-from keyboards.cards_kbs import accept_new_card_btn
+from db.queries.penalty_queries import answer_card_penalty
 from keyboards.cb_data import PageCB
-from keyboards.games_kbs import (after_penalty_kb, answ_card_pen_kb,
-                                 answ_card_penalty_kb,
-                                 answ_pen_rarity_cards_kb,
-                                 cancel_penalty_queue_btn, card_pen_kb,
-                                 card_penalty_kb, draw_penalty_kb, games_kb,
-                                 lucky_shot_btn, no_free_ls_btn,
-                                 pen_rarities_kb, penalty_kind_kb,
-                                 penalty_opp_kb, to_games_btn)
-from keyboards.main_kbs import to_main_btn
+from keyboards.games_kbs import (answ_card_pen_kb, answ_card_penalty_kb,
+                                 answ_pen_rarity_cards_kb, to_games_btn)
 from middlewares.actions import ActionMiddleware
-from utils.format_texts import (format_new_free_card_text,
-                                format_penalty_final_result_text,
-                                format_penalty_round_result_text,
-                                format_view_my_cards_text)
-from utils.misc import format_delay_text
+from utils.format_texts import format_view_my_cards_text
 from utils.scheduled import check_penalty_timer
 from utils.states import UserStates
 

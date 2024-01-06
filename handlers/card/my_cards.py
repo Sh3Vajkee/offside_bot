@@ -1,11 +1,9 @@
 import logging
-from textwrap import dedent
 
-from aiogram import Bot, F, Router, types
+from aiogram import F, Router, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
 from db.queries.collection_queries import (get_pack_cards, get_user_list_cards,
                                            get_user_rarity_cards)

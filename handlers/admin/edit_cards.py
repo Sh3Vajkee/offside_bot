@@ -1,24 +1,21 @@
-import asyncio
 import logging
 from textwrap import dedent
 
-from aiogram import Bot, F, Router, types
-from aiogram.filters import Command, StateFilter
+from aiogram import F, Router, types
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
-from db.queries.admin_queries import (add_new_card, update_card_image,
-                                      update_card_text)
+from db.queries.admin_queries import update_card_image, update_card_text
 from db.queries.collection_queries import get_rarity_cards
 from filters.filters import IsAdmin
 from keyboards.admin_kbs import (adm_card_rarities_kb, adm_view_cards_kb,
                                  admin_cards_kb, admin_kb, back_to_admin_btn)
 from keyboards.cb_data import PageCB
-from keyboards.main_kbs import cancel_btn
 from utils.const import rarities
 from utils.format_texts import format_view_my_cards_text
-from utils.states import AdminStates, UserStates
+from utils.states import AdminStates
 
 flags = {"throttling_key": "default"}
 router = Router()

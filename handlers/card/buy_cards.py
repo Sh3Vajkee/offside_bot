@@ -1,9 +1,7 @@
 from textwrap import dedent
 
-from aiogram import Bot, F, Router
-from aiogram.fsm.context import FSMContext as FSM
+from aiogram import F, Router
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
 from keyboards.cards_kbs import buy_cards_kb
 

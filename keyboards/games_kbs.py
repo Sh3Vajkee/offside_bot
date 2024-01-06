@@ -16,6 +16,10 @@ games_kb = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
+                text="🛠️ Крафт", callback_data="craft"),
+        ],
+        [
+            InlineKeyboardButton(
                 text="⏪ Назад", callback_data="startplay")
         ]
     ]

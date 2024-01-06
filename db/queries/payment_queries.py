@@ -7,8 +7,7 @@ from sqlalchemy import delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from db.models import (CardItem, CardPack, CardXPack, PayItem, Penalty, Player,
-                       Trade, UserCard)
+from db.models import CardItem, CardPack, CardXPack, PayItem, Player, UserCard
 from utils.misc import card_rarity_randomize
 
 

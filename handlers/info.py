@@ -1,13 +1,9 @@
 from textwrap import dedent
 
-from aiogram import Bot, F, Router
-from aiogram.filters import Command, CommandObject
-from aiogram.fsm.context import FSMContext as FSM
+from aiogram import F, Router
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
-from db.queries.global_queries import check_and_add_user
-from keyboards.main_kbs import back_to_info_btn, info_kb, start_kb
+from keyboards.main_kbs import back_to_info_btn, info_kb
 
 flags = {"throttling_key": "default"}
 router = Router()

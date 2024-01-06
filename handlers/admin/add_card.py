@@ -1,19 +1,16 @@
-import asyncio
-import logging
 from textwrap import dedent
 
-from aiogram import Bot, F, Router, types
-from aiogram.filters import Command, StateFilter
+from aiogram import F, Router
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
 from db.queries.admin_queries import add_new_card
 from filters.filters import IsAdmin
-from keyboards.admin_kbs import admin_kb, back_to_admin_btn
-from keyboards.main_kbs import cancel_btn
+from keyboards.admin_kbs import back_to_admin_btn
 from utils.const import rarities
-from utils.states import AdminStates, UserStates
+from utils.states import AdminStates
 
 flags = {"throttling_key": "default"}
 router = Router()

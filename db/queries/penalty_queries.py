@@ -7,7 +7,7 @@ from sqlalchemy import delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from db.models import CardItem, Penalty, Player, Trade, UserCard
+from db.models import Penalty, Player, Trade, UserCard
 from utils.misc import (send_card_penalty_answer, send_card_penalty_offer,
                         send_penalty_action, send_penalty_offer,
                         send_random_penalty_offer)
@@ -377,6 +377,40 @@ async def start_penalty(ssn: AsyncSession, pen_id, bot):
     return date_ts + 60
 
 
+async def start_card_penalty(ssn: AsyncSession, pen_id, bot):
+    penalty_q = await ssn.execute(
+        select(Penalty).filter(Penalty.id == pen_id))
+    penalty: Penalty = penalty_q.fetchone()[0]
+
+    if penalty.status != "active":
+        return "not_active"
+
+    msg_owner_id = await send_penalty_action(
+        bot, penalty.owner, pen_id, "kicker")
+    await asyncio.sleep(.01)
+    msg_target_id = await send_penalty_action(
+        bot, penalty.target, pen_id, "keeper")
+
+    if (msg_owner_id == 0) or (msg_target_id == 0):
+        await ssn.execute(update(Penalty).filter(
+            Penalty.id == pen_id).values(status="canceled", last_action=0))
+        await ssn.commit()
+        logging.info(f"Penalty {pen_id} canceled with error")
+        return "error"
+
+    date = dt.datetime.now()
+    date_ts = int(date.timestamp())
+
+    await ssn.execute(update(Penalty).filter(
+        Penalty.id == pen_id).values(
+            owner_msg_id=msg_owner_id, target_msg_id=msg_target_id,
+            turn_user_id=penalty.owner, kicker=penalty.owner,
+            keeper=penalty.target, last_action=date_ts + 180))
+    await ssn.commit()
+    logging.info(f"Card Penalty {pen_id} started")
+    return date_ts + 180
+
+
 async def kicker_action(ssn: AsyncSession, pen_id, user_id, kicker_pick):
     penalty_q = await ssn.execute(
         select(Penalty).filter(Penalty.id == pen_id))
@@ -387,15 +421,21 @@ async def kicker_action(ssn: AsyncSession, pen_id, user_id, kicker_pick):
 
     date = dt.datetime.now()
     date_ts = int(date.timestamp())
+    if penalty.owner_card_id == 0:
+        new_date_ts = date_ts + 60
+        delay = 60
+    else:
+        new_date_ts = date_ts + 180
+        delay = 180
 
     await ssn.execute(update(Penalty).filter(
         Penalty.id == pen_id).values(
             turn_user_id=penalty.keeper,
-            kicker_pick=kicker_pick, last_action=date_ts + 60))
+            kicker_pick=kicker_pick, last_action=new_date_ts))
     await ssn.commit()
     logging.info(
         f"Penalty {pen_id} | Kicker {user_id} kick to pos {kicker_pick}")
-    return date_ts + 60
+    return new_date_ts, delay
 
 
 async def keeper_action(ssn: AsyncSession, pen_id, user_id, keeper_pick):
@@ -431,36 +471,124 @@ async def keeper_action(ssn: AsyncSession, pen_id, user_id, keeper_pick):
                 target_txt = penalty.target_txt + "1"
                 owner_score = penalty.owner_score
                 target_score = penalty.target_score + 1
-        if owner_score > target_score:
-            owner_rating = 25
-            target_rating = -25
-            winner = penalty.owner
-        elif owner_score < target_score:
-            owner_rating = -25
-            target_rating = 25
-            winner = penalty.target
+
+        if penalty.owner_card_id != 0 and penalty.target_card_id != 0:
+            owner_cards_q = await ssn.execute(select(UserCard).filter(
+                UserCard.user_id == penalty.owner).filter(
+                    UserCard.card_id == penalty.owner_card_id).order_by(
+                        UserCard.duplicate.desc()))
+            owner_cards = owner_cards_q.scalars().all()
+
+            target_cards_q = await ssn.execute(select(UserCard).filter(
+                UserCard.user_id == penalty.target).filter(
+                    UserCard.card_id == penalty.target_card_id).order_by(
+                        UserCard.duplicate.desc()))
+            target_cards = target_cards_q.scalars().all()
+
+            if (len(owner_cards) == 0) or (len(target_cards) == 0):
+                await ssn.execute(update(Penalty).filter(
+                    Penalty.id == pen_id).values(
+                        last_action=0, winner=0, status="error"))
+                await ssn.commit()
+                return "error"
+
+            if owner_score > target_score:
+                owner_dup_check_q = await ssn.execute(select(UserCard).filter(
+                    UserCard.card_id == penalty.target_card_id).filter(
+                        UserCard.user_id == penalty.owner))
+                owner_dup_check_res = owner_dup_check_q.fetchone()
+                if owner_dup_check_res is None:
+                    owner_duplicate = 0
+                else:
+                    owner_duplicate = 1
+
+                owner_rating = target_cards[0].points
+                owner_quant = 1
+                target_rating = -target_cards[0].points
+                target_quant = -1
+                winner = penalty.owner
+
+                await ssn.execute(update(UserCard).filter(
+                    UserCard.id == target_cards[0].id).values(
+                        user_id=penalty.owner, duplicate=owner_duplicate))
+
+            elif owner_score < target_score:
+                target_dup_check_q = await ssn.execute(select(UserCard).filter(
+                    UserCard.card_id == penalty.owner_card_id).filter(
+                        UserCard.user_id == penalty.target))
+                target_dup_check_res = target_dup_check_q.fetchone()
+                if target_dup_check_res is None:
+                    target_duplicate = 0
+                else:
+                    target_duplicate = 1
+
+                owner_rating = -owner_cards[0].points
+                owner_quant = -1
+                target_rating = owner_cards[0].points
+                target_quant = 1
+                winner = penalty.target
+
+                await ssn.execute(update(UserCard).filter(
+                    UserCard.id == owner_cards[0].id).values(
+                        user_id=penalty.target, duplicate=target_duplicate))
+            else:
+                owner_rating = 0
+                owner_quant = 0
+                target_rating = 0
+                target_quant = 0
+                winner = 0
+
+            if owner_rating != 0:
+                await ssn.execute(update(Player).filter(
+                    Player.id == penalty.owner).values(
+                        rating=Player.rating + owner_rating,
+                        card_quants=Player.card_quants + owner_quant))
+                await ssn.execute(update(Player).filter(
+                    Player.id == penalty.target).values(
+                        rating=Player.rating + target_rating,
+                        card_quants=Player.card_quants + target_quant))
+
+            await ssn.execute(update(Penalty).filter(
+                Penalty.id == pen_id).values(
+                    owner_txt=owner_txt, target_txt=target_txt,
+                    owner_score=owner_score, target_score=target_score,
+                    last_action=0, winner=winner, status="finished"))
+            await ssn.commit()
+            logging.info(
+                f"Card penalty {pen_id} | Keeper {user_id} saved pos {keeper_pick} | Winner {winner}")
+            return penalty, result
+
         else:
-            owner_rating = 0
-            target_rating = 0
-            winner = 0
+            if owner_score > target_score:
+                owner_rating = 25
+                target_rating = -25
+                winner = penalty.owner
+            elif owner_score < target_score:
+                owner_rating = -25
+                target_rating = 25
+                winner = penalty.target
+            else:
+                owner_rating = 0
+                target_rating = 0
+                winner = 0
 
-        if owner_rating != 0:
-            await ssn.execute(update(Player).filter(
-                Player.id == penalty.owner).values(
-                    penalty_rating=Player.penalty_rating + owner_rating))
-            await ssn.execute(update(Player).filter(
-                Player.id == penalty.target).values(
-                    penalty_rating=Player.penalty_rating + target_rating))
+            if owner_rating != 0:
+                await ssn.execute(update(Player).filter(
+                    Player.id == penalty.owner).values(
+                        penalty_rating=Player.penalty_rating + owner_rating))
+                await ssn.execute(update(Player).filter(
+                    Player.id == penalty.target).values(
+                        penalty_rating=Player.penalty_rating + target_rating))
 
-        await ssn.execute(update(Penalty).filter(
-            Penalty.id == pen_id).values(
-                owner_txt=owner_txt, target_txt=target_txt,
-                owner_score=owner_score, target_score=target_score,
-                last_action=0, winner=winner, status="finished"))
-        await ssn.commit()
-        logging.info(
-            f"Penalty {pen_id} | Keeper {user_id} saved pos {keeper_pick} | Winner {winner}")
-        return penalty, result
+            await ssn.execute(update(Penalty).filter(
+                Penalty.id == pen_id).values(
+                    owner_txt=owner_txt, target_txt=target_txt,
+                    owner_score=owner_score, target_score=target_score,
+                    last_action=0, winner=winner, status="finished"))
+            await ssn.commit()
+            logging.info(
+                f"Penalty {pen_id} | Keeper {user_id} saved pos {keeper_pick} | Winner {winner}")
+            return penalty, result
     else:
         if penalty.kicker_pick == keeper_pick:
             if penalty.kicker == penalty.owner:
@@ -492,18 +620,26 @@ async def keeper_action(ssn: AsyncSession, pen_id, user_id, keeper_pick):
 
         date = dt.datetime.now()
         date_ts = int(date.timestamp())
+
+        if penalty.owner_card_id == 0:
+            new_date_ts = date_ts + 60
+            delay = 60
+        else:
+            new_date_ts = date_ts + 180
+            delay = 180
+
         await ssn.execute(update(Penalty).filter(
             Penalty.id == pen_id).values(
                 owner_txt=owner_txt, target_txt=target_txt,
                 owner_score=Penalty.owner_score + owner_score,
                 target_score=Penalty.target_score + target_score,
-                kicker=kicker, keeper=keeper, last_action=date_ts + 60,
+                kicker=kicker, keeper=keeper, last_action=new_date_ts,
                 kicker_pick=0, round=Penalty.round + 1))
         await ssn.commit()
         logging.info(
             f"Penalty {pen_id} | Keeper {user_id} saved  pos {keeper_pick}")
 
-        return penalty, result
+        return penalty, result, new_date_ts, delay
 
 
 async def penalty_switch(ssn: AsyncSession, pen_id, bot):

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from textwrap import dedent
 
 from aiogram import Bot, F, Router
 from aiogram.filters import StateFilter
@@ -8,24 +7,19 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
-from db.models import CardItem, Penalty, Player
-from db.queries.games_queries import lucky_shot
+from db.models import Penalty
 from db.queries.penalty_queries import (cancel_pen_queue, cancel_penalty,
                                         check_for_active_penalty,
                                         create_new_penalty, find_penalty_opp,
                                         keeper_action, kicker_action,
                                         penalty_switch, start_penalty)
-from keyboards.cards_kbs import accept_new_card_btn
 from keyboards.games_kbs import (after_penalty_kb, cancel_penalty_queue_btn,
-                                 draw_penalty_kb, games_kb, lucky_shot_btn,
-                                 no_free_ls_btn, penalty_kind_kb,
+                                 draw_penalty_kb, games_kb, penalty_kind_kb,
                                  penalty_opp_kb, to_games_btn)
 from keyboards.main_kbs import to_main_btn
 from middlewares.actions import ActionMiddleware
-from utils.format_texts import (format_new_free_card_text,
-                                format_penalty_final_result_text,
+from utils.format_texts import (format_penalty_final_result_text,
                                 format_penalty_round_result_text)
-from utils.misc import format_delay_text
 from utils.scheduled import check_penalty_timer
 from utils.states import UserStates
 
@@ -195,7 +189,8 @@ async def kicker_penalty_cmd(c: CQ, ssn, action_queue, db, bot):
     else:
         txt = f"Ваш выбор - {corner}\nОжидайте хода второго игрока"
         await c.message.edit_caption(caption=txt)
-        asyncio.create_task(check_penalty_timer(db, pen_id, res, 60, bot))
+        asyncio.create_task(check_penalty_timer(
+            db, pen_id, res[0], res[1], bot))
     try:
         del action_queue[str(c.from_user.id)]
     except Exception as error:
@@ -232,10 +227,9 @@ async def keeper_penalty_cmd(c: CQ, ssn, bot: Bot, action_queue, db):
             await bot.send_message(penalty.kicker, txt, reply_markup=keyboard)
 
         else:
-            new_ts = penalty.last_action
             asyncio.create_task(check_penalty_timer(
-                db, pen_id, new_ts, 60, bot))
-            texts = await format_penalty_round_result_text(*res)
+                db, pen_id, res[2], res[3], bot))
+            texts = await format_penalty_round_result_text(res[0], res[1])
 
             await c.message.answer(texts[0])
             await asyncio.sleep(.01)

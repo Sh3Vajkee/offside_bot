@@ -113,3 +113,33 @@ cancel_btn = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+craft_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="⚪️ Обменять Обычные карты", callback_data="craft_ОБЫЧНАЯ")
+        ],
+        [
+            InlineKeyboardButton(
+                text="🟡 Обменять Необычные карты", callback_data="craft_НЕОБЫЧНАЯ")
+        ],
+        [
+            InlineKeyboardButton(
+                text="🔵 Обменять Редкие карты", callback_data="craft_РЕДКАЯ")
+        ],
+        [
+            InlineKeyboardButton(
+                text="🟣 Обменять Эпические карты", callback_data="craft_ЭПИЧЕСКАЯ")
+        ],
+        [
+            InlineKeyboardButton(
+                text="🟢 Обменять Уникальные карты", callback_data="craft_УНИКАЛЬНАЯ")
+        ],
+        [
+            InlineKeyboardButton(
+                text="🧑💻 В личный кабинет", callback_data="startplay")
+        ]
+    ]
+)

@@ -1,7 +1,7 @@
 import logging
 from textwrap import dedent
 
-from aiogram import Bot, F, Router
+from aiogram import F, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ

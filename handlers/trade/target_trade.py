@@ -5,19 +5,16 @@ from aiogram import Bot, F, Router, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
 from db.models import CardItem, Trade
 from db.queries.collection_queries import get_user_rarity_cards
-from db.queries.trade_queries import (check_target_trade, create_new_trade,
-                                      decline_all_trades, decline_last_trade,
+from db.queries.trade_queries import (decline_all_trades, decline_last_trade,
                                       decline_trade, update_trade_status)
 from keyboards.cb_data import PageCB
 from keyboards.main_kbs import to_main_btn
-from keyboards.trade_kbs import (after_trade_kb, card_trade_kb,
-                                 offer_to_owner_kb, offer_to_target_kb,
+from keyboards.trade_kbs import (after_trade_kb, offer_to_owner_kb,
                                  target_card_trade_kb, target_cards_kb,
-                                 target_rarity_cards_kb, trade_kb)
+                                 target_rarity_cards_kb)
 from utils.format_texts import format_view_my_cards_text
 from utils.states import UserStates
 

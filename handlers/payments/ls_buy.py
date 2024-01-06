@@ -1,26 +1,17 @@
-import asyncio
 import logging
 from textwrap import dedent
 
-from aiogram import Bot, F, Router
-from aiogram.fsm.context import FSMContext as FSM
+from aiogram import F, Router
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
-from db.models import CardItem, PayItem, Player
-from db.queries.games_queries import lucky_shot
-from db.queries.global_queries import get_user_info
+from db.models import PayItem
 from db.queries.payment_queries import (add_ls_after_pay, add_new_payment,
                                         cancel_payment, get_payment_info)
-from keyboards.cards_kbs import accept_new_card_btn
 from keyboards.cb_data import PayCB
-from keyboards.games_kbs import games_kb, lucky_shot_btn, no_free_ls_btn
+from keyboards.games_kbs import lucky_shot_btn
 from keyboards.main_kbs import main_kb
 from keyboards.pay_kbs import pay_kb
-from middlewares.actions import ActionMiddleware
-from utils.format_texts import format_new_free_card_text
-from utils.misc import format_delay_text
-from utils.pay_actions import check_bill_for_pay, create_new_bill
+from utils.pay_actions import create_new_bill
 
 flags = {"throttling_key": "default"}
 router = Router()

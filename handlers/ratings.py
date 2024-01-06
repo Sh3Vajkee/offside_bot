@@ -1,9 +1,5 @@
-from textwrap import dedent
-
-from aiogram import Bot, F, Router
-from aiogram.fsm.context import FSMContext as FSM
+from aiogram import F, Router
 from aiogram.types import CallbackQuery as CQ
-from aiogram.types import Message as Mes
 
 from db.queries.global_queries import get_top_penalty, get_top_rating
 from keyboards.ratings_kbs import back_to_ratings_btn, ratings_kb

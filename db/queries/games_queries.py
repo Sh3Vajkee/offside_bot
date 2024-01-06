@@ -6,7 +6,7 @@ from sqlalchemy import delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from db.models import CardItem, Player, Trade, UserCard
+from db.models import CardItem, Player, UserCard
 from utils.misc import card_rarity_randomize, send_action_emoji
 
 
