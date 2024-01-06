@@ -145,3 +145,35 @@ class PromoUser(Base):
     id = Column(BigInteger, autoincrement=True, primary_key=True)
     promo_id = Column(Integer)
     user_id = Column(BigInteger)
+
+
+class Duel(Base):
+    __tablename__ = "duel"
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    status = Column(String(50), default="active")
+
+    owner = Column(BigInteger)
+    owner_msg_id = Column(BigInteger)
+    owner_username = Column(String(255))
+    owner_points = Column(Integer, default=0)
+    owner_ready = Column(Integer, default=0)
+
+    target = Column(BigInteger, default=0)
+    target_msg_id = Column(BigInteger, default=0)
+    target_username = Column(String(255))
+    target_points = Column(Integer, default=0)
+    target_ready = Column(Integer, default=0)
+
+    last_action = Column(BigInteger, default=0)
+
+    winner = Column(BigInteger, default=0)
+
+
+class DuelCard(Base):
+    __tablename__ = "duelcard"
+
+    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    duel_id = Column(Integer)
+    user_card_id = Column(BigInteger)
+    kind = Column(String(10))

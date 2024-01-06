@@ -14,7 +14,8 @@ from db.base import Base
 from handlers import info, ratings, start
 from handlers.admin import add_card, add_promo, admin_main, edit_cards
 from handlers.card import buy_cards, get_card, my_cards
-from handlers.games import (craft, lucky_shot, penalty, penalty_card_owner,
+from handlers.games import (craft, duel_create, duel_main, duel_owner,
+                            lucky_shot, penalty, penalty_card_owner,
                             penalty_card_target)
 from handlers.payments import cards_buy, ls_buy
 from handlers.trade import confirm_trade, owner_trade, target_trade
@@ -74,6 +75,10 @@ async def main():
     dp.include_router(penalty_card_owner.router)
     dp.include_router(penalty_card_target.router)
     dp.include_router(craft.router)
+
+    dp.include_router(duel_main.router)
+    dp.include_router(duel_create.router)
+    dp.include_router(duel_owner.router)
 
     dp.include_router(get_card.router)
     dp.include_router(buy_cards.router)

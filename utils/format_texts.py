@@ -1,7 +1,7 @@
 import datetime
 from textwrap import dedent
 
-from db.models import CardItem, Penalty, Player, UserCard
+from db.models import CardItem, Duel, Penalty, Player, UserCard
 
 
 async def format_new_free_card_text(card: CardItem):
@@ -173,3 +173,11 @@ async def format_craft_text(duplicates):
     <b>Чтобы осуществить обмен - нужно иметь 5 карт одной редкости.</b>
     """
     return dedent(txt)
+
+# async def format_duel_lobby_text(duel: Duel):
+#     if duel.target == 0:
+#         txt = f"""
+
+#         """
+#     else:
+#         pass

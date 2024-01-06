@@ -31,3 +31,8 @@ class AdminStates(StatesGroup):
     promo_card = State()
 
     user_info = State()
+
+
+class DuelStates(StatesGroup):
+    create_lobby = State()
+    owner_cards = State()
