@@ -6,7 +6,7 @@ from aiogram.types import Message as Mes
 
 from db.queries.admin_queries import get_adm_user_info
 from filters.filters import IsAdmin
-from keyboards.admin_kbs import (admin_cards_kb, admin_kb, admin_promos_kb,
+from keyboards.admin_kbs import (admin_card_kb, admin_kb, admin_promos_kb,
                                  back_to_admin_btn)
 from utils.format_texts import format_user_info_text
 from utils.states import AdminStates
@@ -34,7 +34,7 @@ async def back_to_admin_cmd(c: CQ, state: FSM):
 async def admin_cards_cmd(c: CQ, state: FSM):
     await state.clear()
     txt = "Вы находитесь в разделе управления карточками!\nВыберете действие, которое хотите выполнить"
-    await c.message.edit_text(txt, reply_markup=admin_cards_kb)
+    await c.message.edit_text(txt, reply_markup=admin_card_kb)
 
 
 @router.callback_query(F.data == "adminpromos", IsAdmin(), flags=flags)

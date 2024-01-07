@@ -42,6 +42,10 @@ info_kb = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
+                text="⚔️ О дуэли карт", callback_data="about_duels")
+        ],
+        [
+            InlineKeyboardButton(
                 text="⏪ Назад", callback_data="backtostart")
         ]
     ]

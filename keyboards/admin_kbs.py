@@ -31,7 +31,7 @@ back_to_admin_btn = InlineKeyboardMarkup(
     ]
 )
 
-admin_cards_kb = InlineKeyboardMarkup(
+admin_card_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(

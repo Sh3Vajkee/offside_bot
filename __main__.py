@@ -103,8 +103,6 @@ async def main():
     dp.message.middleware(ThrottlingMessageMiddleware())
     dp.callback_query.middleware(ThrottlingCallbackQueryMiddleware())
 
-    await set_bot_commands(bot)
-
     action_queue = TTLCache(maxsize=10000, ttl=60)
 
     logging.getLogger('aiogram.event').setLevel(logging.WARNING)
