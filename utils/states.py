@@ -22,6 +22,7 @@ class AdminStates(StatesGroup):
     card_image = State()
 
     image_id = State()
+    sticker_id = State()
 
     view_cards = State()
     new_image = State()
@@ -36,3 +37,4 @@ class AdminStates(StatesGroup):
 class DuelStates(StatesGroup):
     create_lobby = State()
     owner_cards = State()
+    target_cards = State()

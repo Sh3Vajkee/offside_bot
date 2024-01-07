@@ -17,6 +17,15 @@ start_kb = InlineKeyboardMarkup(
     ]
 )
 
+close_window_btn = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="✖️ Закрыть окно", callback_data="closewindow")
+        ]
+    ]
+)
+
 info_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [

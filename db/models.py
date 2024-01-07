@@ -157,15 +157,15 @@ class Duel(Base):
     owner_msg_id = Column(BigInteger)
     owner_username = Column(String(255))
     owner_points = Column(Integer, default=0)
+    owner_ts = Column(BigInteger, default=0)
     owner_ready = Column(Integer, default=0)
 
     target = Column(BigInteger, default=0)
     target_msg_id = Column(BigInteger, default=0)
     target_username = Column(String(255))
     target_points = Column(Integer, default=0)
+    target_ts = Column(BigInteger, default=0)
     target_ready = Column(Integer, default=0)
-
-    last_action = Column(BigInteger, default=0)
 
     winner = Column(BigInteger, default=0)
 

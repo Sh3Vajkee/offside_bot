@@ -92,3 +92,8 @@ async def cancel_cb_cmd(c: CQ, state: FSM):
     await state.clear()
     await c.answer("✅ Действие отменено")
     await c.message.delete()
+
+
+@router.callback_query(F.data == "closewindow")
+async def close_window_cmd(c: CQ):
+    await c.message.delete()

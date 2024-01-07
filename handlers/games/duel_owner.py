@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from aiogram import Bot, F, Router, types
@@ -6,14 +7,17 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 
 from db.queries.craft_queries import craft_card, get_user_duplicates
-from db.queries.duel_queries import (add_owner_card_to_duel,
+from db.queries.duel_queries import (add_owner_card_to_duel, get_duel_info,
                                      get_user_duel_cards, owner_duel_candcel,
-                                     update_owner_msg_id)
+                                     update_msg_ids, update_owner_msg_id)
 from keyboards.cards_kbs import accept_new_card_btn
 from keyboards.cb_data import PageCB
-from keyboards.duel_kbs import create_lobby_kb, duel_kb, duel_owner_cards_kb
+from keyboards.duel_kbs import (create_lobby_kb, duel_kb, duel_owner_cards_kb,
+                                opp_duel_kb)
 from keyboards.main_kbs import to_main_btn
 from middlewares.actions import ActionMiddleware
+from utils.duel_misc import (check_duel_timer, format_duel_lobby_text,
+                             resent_lobby_info)
 from utils.format_texts import (format_craft_text, format_new_free_card_text,
                                 format_view_my_cards_text)
 from utils.states import DuelStates
@@ -160,20 +164,61 @@ async def view_sorted_duel_owner_cards_cmd(c: CQ, ssn, state: FSM, action_queue)
 
 @router.callback_query(
     StateFilter(DuelStates.owner_cards),
-    F.data.startswith("ownrmorcards_"), flags={"throttling_key": "pages"}
+    F.data.startswith("ownrmorcards_"), flags=flags
 )
-async def add_duel_owner_cards_cmd(c: CQ, ssn, state: FSM, action_queue):
+async def add_duel_owner_cards_cmd(c: CQ, ssn, state: FSM, action_queue, bot: Bot, db):
     u_card_id = int(c.data.split("_")[-1])
 
     data = await state.get_data()
     duel_id = data.get("duel_id")
-    res = await add_owner_card_to_duel(ssn, c.from_user.id, duel_id, u_card_id)
-    if res == "not_active":
+    duel = await add_owner_card_to_duel(ssn, c.from_user.id, duel_id, u_card_id)
+    if duel == "not_active":
         txt = "Возникла ошибка! Попробуйте позже"
         await c.message.edit_text(txt, reply_markup=to_main_btn)
     else:
         await c.message.delete()
-        msg = await c.message.answer()
+        await c.message.answer("⚔️ Карта добавлена на дуэль")
+        txts = await format_duel_lobby_text(duel)
+        msg = await c.message.answer(
+            txts[0],
+            reply_markup=opp_duel_kb(duel_id, "owner", 0))
+        owner_msg_id = msg.message_id
+
+        try:
+            await bot.send_message(duel.target, "⚔️ Соперник добавил карту на дуэль")
+        except Exception as error:
+            logging.error(f"Send error | chat {duel.owner}\n{error}")
+        target_msg_id = await resent_lobby_info(
+            bot, duel, "target", txts[1], opp_duel_kb(duel_id, "target", 0))
+        await update_msg_ids(ssn, duel_id, owner_msg_id, target_msg_id)
+        asyncio.create_task(check_duel_timer(
+            db, bot, duel_id, "target", duel.target, duel.target_ts, 60))
+
+    try:
+        del action_queue[str(c.from_user.id)]
+    except Exception as error:
+        logging.info(f"Action delete error\n{error}")
+
+
+@router.callback_query(
+    F.data.startswith("owntolobby_"), flags=flags
+)
+async def owner_back_to_lobby_cmd(c: CQ, ssn, action_queue):
+    duel_id = int(c.data.split("_")[-1])
+
+    duel = await get_duel_info(ssn, duel_id, c.from_user.id)
+    if duel == "not_available":
+        txt = "Возникла ошибка! Попробуйте позже"
+        await c.message.edit_text(txt, reply_markup=to_main_btn)
+    else:
+        await c.message.delete()
+        txts = await format_duel_lobby_text(duel)
+        msg = await c.message.answer(
+            txts[0],
+            reply_markup=opp_duel_kb(
+                duel_id, "owner", duel.owner_ready + duel.target_ready))
+        await update_owner_msg_id(ssn, duel_id, msg.message_id)
+
     try:
         del action_queue[str(c.from_user.id)]
     except Exception as error:

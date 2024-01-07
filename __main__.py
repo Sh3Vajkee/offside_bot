@@ -15,13 +15,14 @@ from handlers import info, ratings, start
 from handlers.admin import add_card, add_promo, admin_main, edit_cards
 from handlers.card import buy_cards, get_card, my_cards
 from handlers.games import (craft, duel_create, duel_main, duel_owner,
-                            lucky_shot, penalty, penalty_card_owner,
-                            penalty_card_target)
+                            duel_target, lucky_shot, penalty,
+                            penalty_card_owner, penalty_card_target)
 from handlers.payments import cards_buy, ls_buy
 from handlers.trade import confirm_trade, owner_trade, target_trade
 from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import (ThrottlingCallbackQueryMiddleware,
                                     ThrottlingMessageMiddleware)
+from utils.duel_misc import re_check_active_duels
 from utils.scheduled import re_check_active_penalties
 
 
@@ -79,6 +80,7 @@ async def main():
     dp.include_router(duel_main.router)
     dp.include_router(duel_create.router)
     dp.include_router(duel_owner.router)
+    dp.include_router(duel_target.router)
 
     dp.include_router(get_card.router)
     dp.include_router(buy_cards.router)
@@ -110,6 +112,7 @@ async def main():
         logging.WARNING)
     try:
         await re_check_active_penalties(sessionmaker, bot)
+        await re_check_active_duels(sessionmaker, bot)
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(
             bot, db=sessionmaker, yoo_token=config.yoo_token.get_secret_value(),

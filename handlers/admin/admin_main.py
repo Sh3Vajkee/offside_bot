@@ -58,6 +58,20 @@ async def send_image_id_cmd(m: Mes, state: FSM):
     await m.answer(f"<code>{image}</code>")
 
 
+@router.message(Command("st"), IsAdmin(), flags=flags)
+async def image_id_cmd(m: Mes, state: FSM):
+    await m.answer("Need Sticker")
+    await state.set_state(AdminStates.sticker_id)
+
+
+@router.message(StateFilter(AdminStates.sticker_id), F.sticker, flags=flags)
+async def send_sticker_id_cmd(m: Mes, state: FSM):
+    await state.clear()
+
+    image = m.sticker.file_id
+    await m.answer(f"<code>{image}</code>")
+
+
 @router.callback_query(F.data == "adminusers", IsAdmin(), flags=flags)
 async def admin_users_cmd(c: CQ, state: FSM):
     await state.clear()
