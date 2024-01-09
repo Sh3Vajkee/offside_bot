@@ -115,15 +115,15 @@ def my_cards_kb(page, last, sorting):
     btns.append([
         InlineKeyboardButton(text=txt, callback_data=f"sortmycards_{sorting}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(

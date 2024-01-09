@@ -555,6 +555,8 @@ async def check_duel(db, duel_id, kind, user_id, date_ts):
                 else:
                     return duel, "continued"
 
+        return "finished"
+
 
 async def get_active_duels(db):
     ssn: AsyncSession

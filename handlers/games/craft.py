@@ -45,6 +45,9 @@ async def craft_card_cmd(c: CQ, ssn, action_queue):
     if card == "not_enough":
         await c.answer(
             "У тебя недостаточно карт этой редкости", show_alert=True)
+    elif card == "limit":
+        await c.answer(
+            "Ты уже крафтил легендарную карту сегодня", show_alert=True)
     else:
         logging.info(
             f"User {c.from_user.id} crafted card {card.id} ({next_rarity}) from 5x{rarity} cards")

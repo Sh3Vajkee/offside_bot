@@ -163,57 +163,58 @@ async def re_check_active_duels(db, bot):
 async def check_duel_timer(db, bot: Bot, duel_id, kind, user_id, date_ts, delay):
     await asyncio.sleep(delay)
     res = await check_duel(db, duel_id, kind, user_id, date_ts)
-    duel = res[0]
-    if res[1] == "owner_timeout":
-        try:
-            await bot.delete_message(duel.owner, duel.owner_msg_id)
-        except Exception as error:
-            logging.error(f"Delete error | chat {duel.owner}\n{error}")
-        try:
-            await bot.delete_message(duel.target, duel.target_msg_id)
-        except Exception as error:
-            logging.error(f"Delete error | chat {duel.target}\n{error}")
+    if res != "finished":
+        duel = res[0]
+        if res[1] == "owner_timeout":
+            try:
+                await bot.delete_message(duel.owner, duel.owner_msg_id)
+            except Exception as error:
+                logging.error(f"Delete error | chat {duel.owner}\n{error}")
+            try:
+                await bot.delete_message(duel.target, duel.target_msg_id)
+            except Exception as error:
+                logging.error(f"Delete error | chat {duel.target}\n{error}")
 
-        await asyncio.sleep(.01)
+            await asyncio.sleep(.01)
 
-        txt = f"""
-        🎪 Текущее лобби удалено
+            txt = f"""
+            🎪 Текущее лобби удалено
 
-        🟣 {duel.owner_username} долго бездействовал, лобби было удалено
-        """
+            🟣 {duel.owner_username} долго бездействовал, лобби было удалено
+            """
 
-        try:
-            await bot.send_message(duel.owner, dedent(txt), reply_markup=duel_kb)
-        except Exception as error:
-            logging.error(f"Send error | chat {duel.owner}\n{error}")
-        try:
-            await bot.send_message(duel.target, dedent(txt), reply_markup=duel_kb)
-        except Exception as error:
-            logging.error(f"Send error | chat {duel.target}\n{error}")
-    elif res[1] == "target_timeout":
-        try:
-            await bot.delete_message(duel.owner, duel.owner_msg_id)
-        except Exception as error:
-            logging.error(f"Delete error | chat {duel.owner}\n{error}")
-        try:
-            await bot.delete_message(res[2], res[3])
-        except Exception as error:
-            logging.error(f"Delete error | chat {duel.target}\n{error}")
+            try:
+                await bot.send_message(duel.owner, dedent(txt), reply_markup=duel_kb)
+            except Exception as error:
+                logging.error(f"Send error | chat {duel.owner}\n{error}")
+            try:
+                await bot.send_message(duel.target, dedent(txt), reply_markup=duel_kb)
+            except Exception as error:
+                logging.error(f"Send error | chat {duel.target}\n{error}")
+        elif res[1] == "target_timeout":
+            try:
+                await bot.delete_message(duel.owner, duel.owner_msg_id)
+            except Exception as error:
+                logging.error(f"Delete error | chat {duel.owner}\n{error}")
+            try:
+                await bot.delete_message(res[2], res[3])
+            except Exception as error:
+                logging.error(f"Delete error | chat {duel.target}\n{error}")
 
-        await asyncio.sleep(.01)
+            await asyncio.sleep(.01)
 
-        txt = f"🟠 {res[4]} долго бездействовал и был удален из лобби"
-        try:
-            await bot.send_message(duel.owner, txt)
-        except Exception as error:
-            logging.error(f"Send error | chat {duel.owner}\n{error}")
+            txt = f"🟠 {res[4]} долго бездействовал и был удален из лобби"
+            try:
+                await bot.send_message(duel.owner, txt)
+            except Exception as error:
+                logging.error(f"Send error | chat {duel.owner}\n{error}")
 
-        await asyncio.sleep(.01)
+            await asyncio.sleep(.01)
 
-        duel_txt = await format_duel_lobby_text(duel)
-        try:
-            msg = await bot.send_message(
-                duel.owner, duel_txt[0], reply_markup=no_opp_duel_kb(duel_id))
-            await update_owner_msg_id_db(db, duel_id, msg.message_id)
-        except Exception as error:
-            logging.error(f"Send error | chat {duel.owner}\n{error}")
+            duel_txt = await format_duel_lobby_text(duel)
+            try:
+                msg = await bot.send_message(
+                    duel.owner, duel_txt[0], reply_markup=no_opp_duel_kb(duel_id))
+                await update_owner_msg_id_db(db, duel_id, msg.message_id)
+            except Exception as error:
+                logging.error(f"Send error | chat {duel.owner}\n{error}")

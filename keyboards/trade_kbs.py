@@ -42,15 +42,15 @@ def card_trade_kb(page, last, sorting, card_id):
         InlineKeyboardButton(
             text="Выбрать для обмена", callback_data=f"chstrdcard_{card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(
@@ -146,15 +146,15 @@ def target_card_trade_kb(page, last, sorting, card_id, trade_id):
         InlineKeyboardButton(
             text="Выбрать для обмена", callback_data=f"answtrdcard_{card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(

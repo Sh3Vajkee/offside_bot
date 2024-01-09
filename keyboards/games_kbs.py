@@ -235,15 +235,15 @@ def card_penalty_kb(page, last, sorting, card_id):
         InlineKeyboardButton(
             text="Выбрать для пенальти", callback_data=f"chspencard_{card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(
@@ -318,15 +318,15 @@ def answ_card_penalty_kb(page, last, sorting, card_id, pen_id):
         InlineKeyboardButton(
             text="Выбрать для пенальти", callback_data=f"answpencard_{card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(

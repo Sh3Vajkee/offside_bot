@@ -23,7 +23,7 @@ from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import (ThrottlingCallbackQueryMiddleware,
                                     ThrottlingMessageMiddleware)
 from utils.duel_misc import re_check_active_duels
-from utils.scheduled import re_check_active_penalties
+from utils.scheduled import new_day, re_check_active_penalties
 
 
 async def set_bot_commands(bot: Bot):
@@ -61,10 +61,10 @@ async def main():
     dp.message.filter(F.chat.type == "private")
     dp.callback_query.filter(F.message.chat.type == "private")
 
-    # sheduler = AsyncIOScheduler()
-    # sheduler.add_job(send_one_day_off, "cron", month="11", day="27",
-    #                  hour="20", minute="29", second="0", args=(bot, sessionmaker))
-    # sheduler.start()
+    sheduler = AsyncIOScheduler()
+    sheduler.add_job(new_day, "cron", hour="0", minute="0",
+                     second="10", args=(sessionmaker, ))
+    sheduler.start()
 
     # Регистрация роутеров с хэндлерами
     dp.include_router(start.router)

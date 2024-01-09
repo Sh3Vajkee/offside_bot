@@ -29,6 +29,12 @@ async def add_card_cmd(c: CQ, state: FSM):
     5.Рейтинг карточки
 
     цифры указывать не надо
+
+    Список редкостей:
+    <code>ОБЫЧНАЯ</code>, <code>НЕОБЫЧНАЯ</code>, <code>РЕДКАЯ</code>, 
+    <code>ОЧЕНЬ РЕДКАЯ</code>, <code>ЭПИЧЕСКАЯ</code>, <code>ЭПИЧЕСКАЯ</code>, 
+    <code>УНИКАЛЬНАЯ</code>, <code>ЛЕГЕНДАРНАЯ</code>, 
+    <code>ЭКСКЛЮЗИВНАЯ</code>, <code>МИФИЧЕСКАЯ</code> 
     """
 
     await c.message.delete()

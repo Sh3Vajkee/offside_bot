@@ -25,11 +25,21 @@ async def format_view_my_cards_text(card: CardItem):
 
 
 async def format_list_my_cards_text(cards: dict):
+    txts = []
     txt = "Список всех ваших карт:\n"
+    num = 0
     for k, v in cards.items():
         txt += f"\n{v['nickname']} | Рейтинг: {v['rating']} | {v['quant']} шт."
+        num += 1
+        if num == 51:
+            txts.append(txt)
+            num = 0
+            txt = ""
 
-    return txt
+    if len(txt) > 0:
+        txts.append(txt)
+
+    return txts
 
 
 async def format_top_rating_text(tops, user: Player, place):

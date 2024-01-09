@@ -96,6 +96,10 @@ adm_card_rarities_kb = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
+                text="Очень редкие", callback_data="admrarity_ОЧЕНЬ РЕДКИЕ"),
+        ],
+        [
+            InlineKeyboardButton(
                 text="Эпические", callback_data="admrarity_ЭПИЧЕСКАЯ"),
         ],
         [
@@ -134,15 +138,15 @@ def adm_view_cards_kb(page, last, card_id, kind):
         btns.append([
             InlineKeyboardButton(text="Выбрать для промокода", callback_data=f"prmcard_{card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(

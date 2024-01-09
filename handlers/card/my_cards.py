@@ -130,8 +130,14 @@ async def rarity_cards_cmd(c: CQ, ssn):
 async def list_of_my_cards_cmd(c: CQ, ssn):
     cards = await get_user_list_cards(ssn, c.from_user.id)
     data = await calc_cards_quant(cards)
-    txt = await format_list_my_cards_text(data)
-    await c.message.edit_text(txt, reply_markup=my_card_list_kb)
+    txts = await format_list_my_cards_text(data)
+    await c.message.delete()
+
+    for num, txt in enumerate(txts):
+        if num + 1 == len(txts):
+            await c.message.answer(txt, reply_markup=my_card_list_kb)
+        else:
+            await c.message.answer(txt)
 
 
 @router.callback_query(F.data.startswith("viewpack_"), flags=flags)

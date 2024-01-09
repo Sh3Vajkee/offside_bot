@@ -33,6 +33,18 @@ async def craft_card(ssn: AsyncSession, user_id, rarity, next_rarity, quant):
     if len(used_cards) < quant:
         return "not_enough"
 
+    user_q = await ssn.execute(
+        select(Player).filter(Player.id == user_id))
+    user: Player = user_q.fetchone()[0]
+
+    if next_rarity == "ЛЕГЕНДАРНАЯ":
+        if user.leg_craft >= 1:
+            return "limit"
+        else:
+            leg = 1
+    else:
+        leg = 0
+
     cards_q = await ssn.execute(
         select(CardItem).filter(CardItem.rarity == next_rarity))
     cards = cards_q.scalars().all()
@@ -59,7 +71,7 @@ async def craft_card(ssn: AsyncSession, user_id, rarity, next_rarity, quant):
 
     await ssn.execute(update(Player).filter(
         Player.id == user_id).values(
-        rating=Player.rating + rating,
+        rating=Player.rating + rating, leg_craft=Player.leg_craft + leg,
         card_quants=Player.card_quants - 4))
 
     await ssn.execute(delete(UserCard).filter(UserCard.id.in_(u_ids)))

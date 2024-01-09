@@ -4,6 +4,10 @@ from sqlalchemy.orm import relationship
 
 from db.base import Base
 
+'''
+alter table player add column leg_craft integer default 0;
+'''
+
 
 class Player(Base):
     __tablename__ = 'player'
@@ -23,6 +27,7 @@ class Player(Base):
 
     lucky_quants = Column(Integer, default=0)
     last_lucky = Column(BigInteger, default=0)
+    leg_craft = Column(Integer, default=0)
 
     joined_at_ts = Column(BigInteger, default=0)
     joined_at_txt = Column(String(50))

@@ -68,15 +68,15 @@ def duel_first_cards_kb(page, last, sorting, user_card_id, cards):
         InlineKeyboardButton(
             text="⚔️ Добавить в дуэль", callback_data=f"ownrcrtduel_{user_card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(
@@ -141,15 +141,15 @@ def duel_owner_cards_kb(page, last, sorting, user_card_id, duel_id):
         InlineKeyboardButton(
             text="⚔️ Добавить в дуэль", callback_data=f"ownrmorcards_{user_card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(
@@ -258,15 +258,15 @@ def duel_target_cards_kb(page, last, sorting, user_card_id, duel_id):
         InlineKeyboardButton(
             text="⚔️ Добавить в дуэль", callback_data=f"trgtmorcards_{user_card_id}")])
 
+    btns.append([InlineKeyboardButton(
+        text=f"({page}/{last})", callback_data="useless")])
+
     page_btns = []
     if page > 1:
         page_btns.append(InlineKeyboardButton(
             text="<<", callback_data=PageCB(num=1, last=last).pack()))
         page_btns.append(InlineKeyboardButton(
             text="<", callback_data=PageCB(num=page-1, last=last).pack()))
-
-    page_btns.append(InlineKeyboardButton(
-        text=f"({page}/{last})", callback_data="useless"))
 
     if page < last:
         page_btns.append(InlineKeyboardButton(

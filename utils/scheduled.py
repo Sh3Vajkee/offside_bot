@@ -6,8 +6,14 @@ from aiogram import Bot
 
 from db.models import Penalty
 from db.queries.penalty_queries import check_penalty, get_active_penalties
+from db.queries.scheduled_queries import day_reset
 from keyboards.games_kbs import after_penalty_kb
 from keyboards.main_kbs import back_to_main_btn, to_main_btn
+
+
+async def new_day(db):
+    await day_reset(db)
+    logging.info("DAY RESETED")
 
 
 async def re_check_active_penalties(db, bot):
