@@ -320,12 +320,13 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
         else:
             total_rating = duel.owner_points + duel.target_points
             result = random.randint(1, total_rating)
+
             if result <= duel.owner_points:
                 target_cards_ids_q = await ssn.execute(select(DuelCard.user_card_id).filter(
                     DuelCard.duel_id == duel_id).filter(DuelCard.kind == "target"))
                 target_cards_ids = target_cards_ids_q.scalars().all()
 
-                target_cards_q = await ssn.execute(select(UserCard.points).filter(
+                target_cards_q = await ssn.execute(select(UserCard).filter(
                     UserCard.id.in_(target_cards_ids)))
                 target_cards = target_cards_q.scalars().all()
 
@@ -336,9 +337,22 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     await ssn.commit()
                     return duel, "error"
 
-                rating = sum(target_cards)
-                await ssn.execute(update(UserCard).filter(
-                    UserCard.id.in_(target_cards_ids)).values(user_id=duel.owner))
+                rating = 0
+                for target_card in target_cards:
+                    dup_card_q = await ssn.execute(select(UserCard).filter(
+                        UserCard.user_id == duel.owner).filter(
+                        UserCard.card_id == target_card.card_id))
+                    dup_card_res = dup_card_q.fetchone()
+                    if dup_card_res is None:
+                        duplicate = 0
+                    else:
+                        duplicate = 1
+
+                    rating += target_card.points
+                    await ssn.execute(update(UserCard).filter(
+                        UserCard.id == target_card.id).values(
+                            user_id=duel.owner, duplicate=duplicate))
+
                 await ssn.execute(update(Player).filter(
                     Player.id == duel.owner).values(
                         rating=Player.rating + rating,
@@ -358,7 +372,7 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     DuelCard.duel_id == duel_id).filter(DuelCard.kind == "owner"))
                 owner_cards_ids = owner_cards_ids_q.scalars().all()
 
-                owner_cards_q = await ssn.execute(select(UserCard.points).filter(
+                owner_cards_q = await ssn.execute(select(UserCard).filter(
                     UserCard.id.in_(owner_cards_ids)))
                 owner_cards = owner_cards_q.scalars().all()
 
@@ -369,9 +383,22 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     await ssn.commit()
                     return duel, "error"
 
-                rating = sum(owner_cards)
-                await ssn.execute(update(UserCard).filter(
-                    UserCard.id.in_(owner_cards_ids)).values(user_id=duel.target))
+                rating = 0
+                for owner_card in owner_cards:
+                    dup_card_q = await ssn.execute(select(UserCard).filter(
+                        UserCard.user_id == duel.target).filter(
+                        UserCard.card_id == owner_card.card_id))
+                    dup_card_res = dup_card_q.fetchone()
+                    if dup_card_res is None:
+                        duplicate = 0
+                    else:
+                        duplicate = 1
+
+                    rating += owner_card.points
+                    await ssn.execute(update(UserCard).filter(
+                        UserCard.id == owner_card.id).values(
+                            user_id=duel.target, duplicate=duplicate))
+
                 await ssn.execute(update(Player).filter(
                     Player.id == duel.owner).values(
                         rating=Player.rating - rating,
@@ -406,7 +433,7 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     DuelCard.duel_id == duel_id).filter(DuelCard.kind == "target"))
                 target_cards_ids = target_cards_ids_q.scalars().all()
 
-                target_cards_q = await ssn.execute(select(UserCard.points).filter(
+                target_cards_q = await ssn.execute(select(UserCard).filter(
                     UserCard.id.in_(target_cards_ids)))
                 target_cards = target_cards_q.scalars().all()
 
@@ -417,9 +444,22 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     await ssn.commit()
                     return duel, "error"
 
-                rating = sum(target_cards)
-                await ssn.execute(update(UserCard).filter(
-                    UserCard.id.in_(target_cards_ids)).values(user_id=duel.owner))
+                rating = 0
+                for target_card in target_cards:
+                    dup_card_q = await ssn.execute(select(UserCard).filter(
+                        UserCard.user_id == duel.owner).filter(
+                        UserCard.card_id == target_card.card_id))
+                    dup_card_res = dup_card_q.fetchone()
+                    if dup_card_res is None:
+                        duplicate = 0
+                    else:
+                        duplicate = 1
+
+                    rating += target_card.points
+                    await ssn.execute(update(UserCard).filter(
+                        UserCard.id == target_card.id).values(
+                            user_id=duel.owner, duplicate=duplicate))
+
                 await ssn.execute(update(Player).filter(
                     Player.id == duel.owner).values(
                         rating=Player.rating + rating,
@@ -439,7 +479,7 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     DuelCard.duel_id == duel_id).filter(DuelCard.kind == "owner"))
                 owner_cards_ids = owner_cards_ids_q.scalars().all()
 
-                owner_cards_q = await ssn.execute(select(UserCard.points).filter(
+                owner_cards_q = await ssn.execute(select(UserCard).filter(
                     UserCard.id.in_(owner_cards_ids)))
                 owner_cards = owner_cards_q.scalars().all()
 
@@ -450,9 +490,22 @@ async def duel_user_ready(ssn: AsyncSession, user_id, duel_id):
                     await ssn.commit()
                     return duel, "error"
 
-                rating = sum(owner_cards)
-                await ssn.execute(update(UserCard).filter(
-                    UserCard.id.in_(owner_cards_ids)).values(user_id=duel.target))
+                rating = 0
+                for owner_card in owner_cards:
+                    dup_card_q = await ssn.execute(select(UserCard).filter(
+                        UserCard.user_id == duel.target).filter(
+                        UserCard.card_id == owner_card.card_id))
+                    dup_card_res = dup_card_q.fetchone()
+                    if dup_card_res is None:
+                        duplicate = 0
+                    else:
+                        duplicate = 1
+
+                    rating += owner_card.points
+                    await ssn.execute(update(UserCard).filter(
+                        UserCard.id == owner_card.id).values(
+                            user_id=duel.target, duplicate=duplicate))
+
                 await ssn.execute(update(Player).filter(
                     Player.id == duel.owner).values(
                         rating=Player.rating - rating,

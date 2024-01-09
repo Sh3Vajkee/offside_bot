@@ -161,8 +161,7 @@ async def close_trade(ssn: AsyncSession, trade_id):
     # Добавляем карту второго игрока первому игроку
     target_card_q = await ssn.execute(select(UserCard).filter(
         UserCard.user_id == trade.owner).filter(
-        UserCard.card_id == target_card.card_id).filter(
-        UserCard.duplicate == 1))
+        UserCard.card_id == target_card.card_id))
     target_card_res = target_card_q.fetchone()
     if target_card_res is None:
         owner_duplicate = 0
@@ -176,8 +175,7 @@ async def close_trade(ssn: AsyncSession, trade_id):
     # Добавляем карту первого игрока второму игроку
     owner_card_q = await ssn.execute(select(UserCard).filter(
         UserCard.user_id == trade.target).filter(
-        UserCard.card_id == owner_card.card_id).filter(
-        UserCard.duplicate == 1))
+        UserCard.card_id == owner_card.card_id))
     owner_card_res = owner_card_q.fetchone()
     if owner_card_res is None:
         target_duplicate = 0

@@ -48,7 +48,8 @@ async def format_top_rating_text(tops, user: Player, place):
 
         txt += f"\n{plc} {top.username} - {top.rating}"
 
-    txt += f"\n\n{place}. {user.username} - {user.rating}"
+    if place > len(tops):
+        txt += f"\n\n{place}. {user.username} - {user.rating}"
 
     return txt
 
@@ -69,7 +70,8 @@ async def format_top_penalty_text(tops, user: Player, place):
 
         txt += f"\n{plc} {top.username} - {top.penalty_rating}"
 
-    txt += f"\n\n{place}. {user.username} - {user.penalty_rating}"
+    if place > len(tops):
+        txt += f"\n\n{place}. {user.username} - {user.penalty_rating}"
 
     return txt
 
