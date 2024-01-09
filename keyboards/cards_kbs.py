@@ -139,46 +139,15 @@ def my_cards_kb(page, last, sorting):
     return keyboard
 
 
-my_card_rarities_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text="Обычные", callback_data="rarity_ОБЫЧНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Необычные", callback_data="rarity_НЕОБЫЧНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Редкие", callback_data="rarity_РЕДКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Эпические", callback_data="rarity_ЭПИЧЕСКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Уникальные", callback_data="rarity_УНИКАЛЬНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Легендарные", callback_data="rarity_ЛЕГЕНДАРНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Эксклюзивные", callback_data="rarity_ЭКСКЛЮЗИВНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Мифические", callback_data="rarity_МИФИЧЕСКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="⏪ Назад", callback_data="back_to_mycards")
-        ]
-    ]
-)
+def my_card_rarities_kb(rarities):
+    btns = []
+    for item in rarities:
+        btns.append([InlineKeyboardButton(
+            text=item[0], callback_data=f"rarity_{item[1]}")])
+
+    btns.append([InlineKeyboardButton(
+                text="⏪ Назад", callback_data="back_to_mycards")])
+    return InlineKeyboardMarkup(inline_keyboard=btns)
 
 
 my_card_list_kb = InlineKeyboardMarkup(

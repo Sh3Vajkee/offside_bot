@@ -20,7 +20,7 @@ trade_kb = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
-                text="⏪ Назад", callback_data="backtostart")
+                text="⏪ Назад", callback_data="startplay")
         ]
     ]
 )
@@ -123,7 +123,7 @@ def target_cards_kb(trade_id):
             ],
             [
                 InlineKeyboardButton(
-                    text="⏪ Назад", callback_data="backtostart")
+                    text="⏪ Назад", callback_data="startplay")
             ]
         ]
     )
@@ -183,93 +183,29 @@ after_trade_kb = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
-                text="🧑💻 В личный кабинет", callback_data=f"backtostart")
+                text="🧑💻 В личный кабинет", callback_data=f"startplay")
         ]
     ]
 )
 
 
-trade_rarities_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text="Обычные", callback_data="trdrar_ОБЫЧНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Необычные", callback_data="trdrar_НЕОБЫЧНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Редкие", callback_data="trdrar_РЕДКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Эпические", callback_data="trdrar_ЭПИЧЕСКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Уникальные", callback_data="trdrar_УНИКАЛЬНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Легендарные", callback_data="trdrar_ЛЕГЕНДАРНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Эксклюзивные", callback_data="trdrar_ЭКСКЛЮЗИВНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Мифические", callback_data="trdrar_МИФИЧЕСКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="⏪ Назад", callback_data="back_to_mycards")
-        ]
-    ]
-)
+def trade_rarities_kb(rarities):
+    btns = []
+    for item in rarities:
+        btns.append([InlineKeyboardButton(
+            text=item[0], callback_data=f"trdrar_{item[1]}")])
+
+    btns.append([InlineKeyboardButton(
+                text="⏪ Назад", callback_data="startplay")])
+    return InlineKeyboardMarkup(inline_keyboard=btns)
 
 
-def target_rarity_cards_kb(trade_id):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="Обычные", callback_data=f"answtrdrar_ОБЫЧНАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Необычные", callback_data=f"answtrdrar_НЕОБЫЧНАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Редкие", callback_data=f"answtrdrar_РЕДКАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Эпические", callback_data=f"answtrdrar_ЭПИЧЕСКАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Уникальные", callback_data=f"answtrdrar_УНИКАЛЬНАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Легендарные", callback_data=f"answtrdrar_ЛЕГЕНДАРНАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Эксклюзивные", callback_data=f"answtrdrar_ЭКСКЛЮЗИВНАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Мифические", callback_data=f"answtrdrar_МИФИЧЕСКАЯ_{trade_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⏪ Назад", callback_data="backtostart")
-            ]
-        ]
-    )
-    return keyboard
+def target_rarity_cards_kb(rarities, trade_id):
+    btns = []
+    for item in rarities:
+        btns.append([InlineKeyboardButton(
+            text=item[0], callback_data=f"answtrdrar_{item[1]}_{trade_id}")])
+
+    btns.append([InlineKeyboardButton(
+                text="⏪ Назад", callback_data="startplay")])
+    return InlineKeyboardMarkup(inline_keyboard=btns)

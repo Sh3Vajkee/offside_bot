@@ -5,6 +5,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 
+from db.queries.card_queries import get_user_card_rarities
 from db.queries.collection_queries import (get_pack_cards, get_user_list_cards,
                                            get_user_rarity_cards)
 from keyboards.cards_kbs import (filter_my_cards_kb, my_card_list_kb,
@@ -119,9 +120,10 @@ async def view_sorted_cards_cmd(c: CQ, ssn, state: FSM):
 
 
 @router.callback_query(F.data == "mycardsrarities", flags=flags)
-async def rarity_cards_cmd(c: CQ):
+async def rarity_cards_cmd(c: CQ, ssn):
     txt = "Выберите редкость карт"
-    await c.message.edit_text(txt, reply_markup=my_card_rarities_kb)
+    rarities = await get_user_card_rarities(ssn, c.from_user.id)
+    await c.message.edit_text(txt, reply_markup=my_card_rarities_kb(rarities))
 
 
 @router.callback_query(F.data == "list_my_cards", flags=flags)

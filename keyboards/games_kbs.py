@@ -260,46 +260,15 @@ def card_penalty_kb(page, last, sorting, card_id):
     return keyboard
 
 
-pen_rarities_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text="Обычные", callback_data="penrar_ОБЫЧНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Необычные", callback_data="penrar_НЕОБЫЧНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Редкие", callback_data="penrar_РЕДКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Эпические", callback_data="penrar_ЭПИЧЕСКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Уникальные", callback_data="penrar_УНИКАЛЬНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Легендарные", callback_data="penrar_ЛЕГЕНДАРНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Эксклюзивные", callback_data="penrar_ЭКСКЛЮЗИВНАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Мифические", callback_data="penrar_МИФИЧЕСКАЯ"),
-        ],
-        [
-            InlineKeyboardButton(
-                text="⏪ Назад", callback_data="back_to_games")
-        ]
-    ]
-)
+def pen_rarities_kb(rarities):
+    btns = []
+    for item in rarities:
+        btns.append([InlineKeyboardButton(
+            text=item[0], callback_data=f"penrar_{item[1]}")])
+
+    btns.append([InlineKeyboardButton(
+                text="⏪ Назад", callback_data="startplay")])
+    return InlineKeyboardMarkup(inline_keyboard=btns)
 
 
 def answ_card_pen_kb(pen_id):
@@ -322,48 +291,15 @@ def answ_card_pen_kb(pen_id):
     return keyboard
 
 
-def answ_pen_rarity_cards_kb(pen_id):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="Обычные", callback_data=f"answpenrar_ОБЫЧНАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Необычные", callback_data=f"answpenrar_НЕОБЫЧНАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Редкие", callback_data=f"answpenrar_РЕДКАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Эпические", callback_data=f"answpenrar_ЭПИЧЕСКАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Уникальные", callback_data=f"answpenrar_УНИКАЛЬНАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Легендарные", callback_data=f"answpenrar_ЛЕГЕНДАРНАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Эксклюзивные", callback_data=f"answpenrar_ЭКСКЛЮЗИВНАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Мифические", callback_data=f"answpenrar_МИФИЧЕСКАЯ_{pen_id}"),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⏪ Назад", callback_data=f"penawscard_{pen_id}")
-            ]
-        ]
-    )
-    return keyboard
+def answ_pen_rarity_cards_kb(rarities, pen_id):
+    btns = []
+    for item in rarities:
+        btns.append([InlineKeyboardButton(
+            text=item[0], callback_data=f"answpenrar_{item[1]}_{pen_id}")])
+
+    btns.append([InlineKeyboardButton(
+                text="⏪ Назад", callback_data=f"penawscard_{pen_id}")])
+    return InlineKeyboardMarkup(inline_keyboard=btns)
 
 
 def answ_card_penalty_kb(page, last, sorting, card_id, pen_id):

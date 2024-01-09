@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from db.models import CardItem, Player, PromoCode, PromoUser, UserCard
+from utils.const import m_rarities, rarities
 from utils.misc import card_rarity_randomize
 
 
@@ -116,3 +117,16 @@ async def use_promo(ssn: AsyncSession, user_id, promocode):
     logging.info(f"User {user_id} used promo {promocode} ({promo.id})")
 
     return card
+
+
+async def get_user_card_rarities(ssn: AsyncSession, user_id):
+    cards_q = await ssn.execute(
+        select(UserCard.card_rarity).filter(UserCard.user_id == user_id))
+    cards = cards_q.scalars().all()
+    user_rarities = set(cards)
+    result = []
+    for num, rarity in enumerate(rarities):
+        if rarity in user_rarities:
+            result.append([m_rarities[num], rarity])
+
+    return result

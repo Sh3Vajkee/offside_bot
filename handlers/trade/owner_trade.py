@@ -8,6 +8,7 @@ from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
 from db.models import CardItem, Trade
+from db.queries.card_queries import get_user_card_rarities
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.trade_queries import (check_target_trade, create_new_trade,
                                       decline_trade)
@@ -220,6 +221,8 @@ async def decline_owner_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
 
 
 @router.callback_query(F.data == "traderarities", flags=flags)
-async def get_card_cmd(c: CQ):
+async def get_card_cmd(c: CQ, ssn):
     txt = "Выберите редкость карт"
-    await c.message.edit_text(txt, reply_markup=trade_rarities_kb)
+    rarities = await get_user_card_rarities(ssn, c.from_user.id)
+
+    await c.message.edit_text(txt, reply_markup=trade_rarities_kb(rarities))

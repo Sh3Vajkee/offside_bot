@@ -44,11 +44,11 @@ async def format_top_rating_text(tops, user: Player, place):
         elif num == 2:
             plc = "🥉"
         else:
-            plc = f"{num + 1}."
+            plc = f" {num + 1}."
 
         txt += f"\n{plc} {top.username} - {top.rating}"
 
-    txt += f"\n{place}. {user.username} - {user.rating}"
+    txt += f"\n\n{place}. {user.username} - {user.rating}"
 
     return txt
 
@@ -65,11 +65,11 @@ async def format_top_penalty_text(tops, user: Player, place):
         elif num == 2:
             plc = "🥉"
         else:
-            plc = f"{num + 1}."
+            plc = f" {num + 1}."
 
         txt += f"\n{plc} {top.username} - {top.penalty_rating}"
 
-    txt += f"\n{place}. {user.username} - {user.penalty_rating}"
+    txt += f"\n\n{place}. {user.username} - {user.penalty_rating}"
 
     return txt
 

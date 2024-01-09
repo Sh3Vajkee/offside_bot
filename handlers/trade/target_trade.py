@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 
 from db.models import CardItem, Trade
+from db.queries.card_queries import get_user_card_rarities
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.trade_queries import (decline_all_trades, decline_last_trade,
                                       decline_trade, update_trade_status)
@@ -197,11 +198,12 @@ async def cancel_last_trade_cmd(c: CQ, ssn, state: FSM, bot: Bot):
 
 
 @router.callback_query(F.data.startswith("answtraderarities_"), flags=flags)
-async def rarities_target_trade_cmd(c: CQ):
+async def rarities_target_trade_cmd(c: CQ, ssn):
     trade_id = int(c.data.split("_")[-1])
     txt = "Выберите редкость карт"
+    rarities = await get_user_card_rarities(ssn, c.from_user.id)
     await c.message.edit_text(
-        txt, reply_markup=target_rarity_cards_kb(trade_id))
+        txt, reply_markup=target_rarity_cards_kb(rarities, trade_id))
 
 
 @router.callback_query(F.data == "cancel_all_trades", flags=flags)

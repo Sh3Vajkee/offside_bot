@@ -6,6 +6,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 
+from db.queries.card_queries import get_user_card_rarities
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.penalty_queries import answer_card_penalty
 from keyboards.cb_data import PageCB
@@ -40,10 +41,11 @@ async def answ_pen_card_game_cmd(c: CQ, action_queue):
 @router.callback_query(
     F.data.startswith("answpenrarities_"), flags={"throttling_key": "pages"}
 )
-async def answ_pen_card_rar_cmd(c: CQ, action_queue):
+async def answ_pen_card_rar_cmd(c: CQ, action_queue, ssn):
     pen_id = int(c.data.split("_")[-1])
     txt = "Выберите редкость карт"
-    await c.message.edit_text(txt, reply_markup=answ_pen_rarity_cards_kb(pen_id))
+    rarities = await get_user_card_rarities(ssn, c.from_user.id)
+    await c.message.edit_text(txt, reply_markup=answ_pen_rarity_cards_kb(rarities, pen_id))
     try:
         del action_queue[str(c.from_user.id)]
     except Exception as error:

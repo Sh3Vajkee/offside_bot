@@ -60,7 +60,8 @@ async def find_penalty_opp(ssn: AsyncSession, user_id, bot):
     targets_q = await ssn.execute(select(Player).filter(
         Player.penalty_queue == 1).filter(
             Player.penalty_rating >= low_rating).filter(
-                Player.penalty_rating <= high_rating))
+                Player.penalty_rating <= high_rating).filter(
+                    Player.id != user_id))
     targets = targets_q.scalars().all()
     if len(targets) == 0:
         await ssn.execute(update(Player).filter(

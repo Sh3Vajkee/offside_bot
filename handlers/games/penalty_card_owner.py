@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext as FSM
 from aiogram.types import CallbackQuery as CQ
 from aiogram.types import Message as Mes
 
+from db.queries.card_queries import get_user_card_rarities
 from db.queries.collection_queries import get_user_rarity_cards
 from db.queries.penalty_queries import (check_for_active_penalty_card,
                                         create_new_card_penalty,
@@ -27,7 +28,7 @@ router.callback_query.middleware(ActionMiddleware())
 
 @router.callback_query(F.data == "pengame_card", flags=flags)
 async def card_pen_game_cmd(c: CQ, action_queue):
-    await c.message.answer(
+    await c.message.edit_text(
         "🧳 Выберите формат отображения коллекции",
         reply_markup=card_pen_kb)
 
@@ -36,14 +37,12 @@ async def card_pen_game_cmd(c: CQ, action_queue):
     except Exception as error:
         logging.info(f"Action delete error\n{error}")
 
-    txt = "⚽️ Выберите соперника"
-    await c.message.edit_text(txt, reply_markup=penalty_opp_kb)
-
 
 @router.callback_query(F.data == "penrarities", flags=flags)
-async def card_pen_rarities_cmd(c: CQ, action_queue):
+async def card_pen_rarities_cmd(c: CQ, action_queue, ssn):
     txt = "Выберите редкость карт"
-    await c.message.edit_text(txt, reply_markup=pen_rarities_kb)
+    rarities = await get_user_card_rarities(ssn, c.from_user.id)
+    await c.message.edit_text(txt, reply_markup=pen_rarities_kb(rarities))
     try:
         del action_queue[str(c.from_user.id)]
     except Exception as error:
